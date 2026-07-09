@@ -1,0 +1,101 @@
+{
+    "info": {
+        "_postman_id": "12345678-1234-1234-1234-123456789012",
+        "name": "Academia de Manejo API",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+        "_exporter_id": "123456"
+    },
+    "item": [
+        {
+            "name": "Alumnos",
+            "item": [
+                {
+                    "name": "Crear Alumno",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"nombres\": \"Juan Pérez\",\n    \"apellidos\": \"García\",\n    \"documento_identidad\": \"12345678\",\n    \"telefono\": \"987654321\",\n    \"email\": \"juan@example.com\"\n}"
+                        },
+                        "url": {
+                            "raw": "http://localhost:8000/api/alumnos/",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8000",
+                            "path": [
+                                "api",
+                                "alumnos",
+                                ""
+                            ]
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Listar Alumnos",
+                    "request": {
+                        "method": "GET",
+                        "header": [],
+                        "url": {
+                            "raw": "http://localhost:8000/api/alumnos/",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8000",
+                            "path": [
+                                "api",
+                                "alumnos",
+                                ""
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Reservas",
+            "item": [
+                {
+                    "name": "Crear Reserva",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"alumno_id\": \"123e4567-e89b-12d3-a456-426614174000\",\n    \"servicio_id\": \"123e4567-e89b-12d3-a456-426614174001\",\n    \"fecha_hora_inicio\": \"2024-06-15T09:00:00-05:00\",\n    \"fecha_hora_fin\": \"2024-06-15T11:00:00-05:00\"\n}"
+                        },
+                        "url": {
+                            "raw": "http://localhost:8000/api/reservas/",
+                            "protocol": "http",
+                            "host": [
+                                "localhost"
+                            ],
+                            "port": "8000",
+                            "path": [
+                                "api",
+                                "reservas",
+                                ""
+                            ]
+                        }
+                    },
+                    "response": []
+                }
+            ]
+        }
+    ]
+}
