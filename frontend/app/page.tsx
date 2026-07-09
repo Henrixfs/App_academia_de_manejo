@@ -121,7 +121,7 @@ function Courses() {
 
         <div className="grid md:grid-cols-3 gap-6">
           {courses.map((course, index) => (
-            <Card key={index} className={course.popular ? "border-primary shadow-lg" : ""}>
+            <Card key={index} className={course.popular ? "relative border-primary shadow-lg" : ""}>
               {course.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                   <Badge>Mas Popular</Badge>
@@ -196,7 +196,7 @@ function Pricing() {
 
         <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
           {pricingPlans.map((plan, index) => (
-            <Card key={index} className={plan.popular ? "border-primary" : ""}>
+            <Card key={index} className={plan.popular ? "relative border-primary" : ""}>
               {plan.popular && (
                 <div className="absolute -top-3 left-1/2 -translate-x-1/2">
                   <Badge>Recomendado</Badge>
