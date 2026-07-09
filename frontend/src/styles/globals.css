@@ -1,3 +1,6 @@
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "@fontsource-variable/geist";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -11,7 +14,7 @@ body {
 
 /* Custom button variants */
 .btn-primary {
-  @apply bg-gradient-to-r from-primary to-primary/80 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(0,217,255,0.6)];
+  @apply bg-gradient-to-r from-primary to-primary/80 text-white px-6 py-3 rounded-lg font-medium transition-all duration-300 hover:shadow-lg hover:-translate-y-1 hover:shadow-[0_0_20px_rgba(0, 217, 255, 0.6)];
 }
 
 .btn-outline {
@@ -114,7 +117,9 @@ body {
 
 /* Loading spinner */
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .animate-spin {
@@ -125,5 +130,48 @@ body {
 @media (max-width: 640px) {
   .container {
     @apply px-4;
+  }
+}
+
+@layer base {
+  .theme {
+    --font-heading: var(--font-sans);
+    --font-sans: 'Geist Variable', sans-serif;
+  }
+
+  :root {
+    --background: #0A0E27;
+    --foreground: #DEE0FF;
+    --card: #1A1E37;
+    --card-foreground: #DEE0FF;
+    --popover: #1A1E37;
+    --popover-foreground: #DEE0FF;
+    --primary: #AFECFF;
+    --primary-foreground: #003641;
+    --secondary: #C4C0FF;
+    --secondary-foreground: #2200A3;
+    --muted: #252E4A;
+    --muted-foreground: #BBC9CE;
+    --accent: #63FF9A;
+    --accent-foreground: #003919;
+    --destructive: #FFB4AB;
+    --border: #3D4563;
+    --input: #3D4563;
+    --ring: #00D9FF;
+    --radius: 0.625rem;
+  }
+
+  * {
+    border-color: var(--border);
+    outline-color: var(--ring);
+  }
+
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+  }
+
+  html {
+    font-family: 'Geist Variable', sans-serif;
   }
 }
