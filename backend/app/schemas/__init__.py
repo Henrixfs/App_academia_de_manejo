@@ -54,7 +54,7 @@ class ReservaCreate(BaseModel):
     matricula_paquete_id: Optional[uuid.UUID] = None
     fecha_hora_inicio: datetime
     fecha_hora_fin: datetime
-    # notas se elimina ya que no está en el modelo
+    notas: Optional[str] = None
 
     @field_validator("fecha_hora_fin")
     @classmethod
@@ -69,6 +69,7 @@ class ReservaUpdate(BaseModel):
     """Schema para actualizar una reserva."""
     fecha_hora_inicio: Optional[datetime] = None
     fecha_hora_fin: Optional[datetime] = None
+    notas: Optional[str] = None
 
     @field_validator("fecha_hora_fin")
     @classmethod
@@ -88,7 +89,7 @@ class ReservaResponse(BaseModel):
     fecha_hora_inicio: datetime
     fecha_hora_fin: datetime
     estado: EstadoReserva
-    estado_pago: str  # pending, pagado_presencial (could be Enum but kept simple)
+    estado_pago: str
     fecha_creacion: datetime
 
     class Config:
@@ -139,7 +140,7 @@ class ServicioCreate(BaseModel):
     """Schema para crear un servicio."""
     nombre: str = Field(..., min_length=1, max_length=100)
     descripcion: str = Field(..., min_length=1)
-    tarifa: float = Field(..., gt=0)  # greater than zero
+    tarifa: float = Field(..., gt=0)
     tiempo_minimo_horas: int = Field(..., gt=0)
 
     @field_validator("tarifa")
@@ -185,3 +186,85 @@ class ServicioResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+# ====== AUTH ======
+
+class LoginRequest(BaseModel):
+    """Schema para solicitud de login."""
+    username: str = Field(..., description="Email o documento de identidad del usuario")
+    password: str = Field(..., min_length=1, description="Contraseña del usuario")
+
+
+class RegisterRequest(BaseModel):
+    """Schema para registro de nuevo usuario con password."""
+    nombres: str = Field(..., min_length=1, max_length=100)
+    apellidos: str = Field(..., min_length=1, max_length=100)
+    documento_identidad: str = Field(..., min_length=1, max_length=20)
+    telefono: str = Field(..., min_length=1, max_length=20)
+    email: str = Field(..., description="Email del usuario")
+    password: str = Field(..., min_length=6, description="Contraseña (mínimo 6 caracteres)")
+
+
+class TokenResponse(BaseModel):
+    """Schema para respuesta de token JWT."""
+    access_token: str
+    token_type: str = "bearer"
+
+
+class TokenData(BaseModel):
+    """Datos decodificados del token JWT."""
+    user_id: Optional[uuid.UUID] = None
+    email: Optional[str] = None
+    rol: Optional[str] = None
+
+
+class UserResponse(BaseModel):
+    """Schema para datos del usuario en respuesta."""
+    id: uuid.UUID
+    email: str
+    nombres: str
+    apellidos: str
+    rol: str
+
+    class Config:
+        from_attributes = True
+
+
+# ====== ADMINISTRADOR ======
+
+class AdminCreate(BaseModel):
+    """Schema para crear un administrador."""
+    email: EmailStr
+    nombres: str = Field(..., min_length=1, max_length=100)
+    apellidos: str = Field(..., min_length=1, max_length=100)
+    telefono: Optional[str] = Field(None, max_length=20)
+
+
+class AdminUpdate(BaseModel):
+    """Schema para actualizar un administrador."""
+    email: Optional[EmailStr] = None
+    nombres: Optional[str] = Field(None, min_length=1, max_length=100)
+    apellidos: Optional[str] = Field(None, min_length=1, max_length=100)
+    telefono: Optional[str] = Field(None, max_length=20)
+    activo: Optional[bool] = None
+
+
+class AdminResponse(BaseModel):
+    """Schema para devolver datos de un administrador."""
+    id: uuid.UUID
+    email: str
+    nombres: str
+    apellidos: str
+    telefono: Optional[str]
+    activo: bool
+    fecha_creacion: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class AdminLoginRequest(BaseModel):
+    """Schema para solicitud de login de administrador."""
+    email: EmailStr
+    password: str = Field(..., min_length=1)
