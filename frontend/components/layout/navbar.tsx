@@ -15,18 +15,18 @@ export function Navbar() {
       <nav className="container flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-semibold">
           <Car className="size-6" />
-          <span>Academia de Manejo</span>
+          <span>Academia de Manejo San Cristóbal VIP</span>
         </Link>
 
         <div className="hidden md:flex md:items-center md:gap-6">
-          <Link href="#cursos" className="text-sm font-medium hover:text-primary">
-            Cursos
-          </Link>
-          <Link href="#precios" className="text-sm font-medium hover:text-primary">
-            Precios
+          <Link href="#servicios" className="text-sm font-medium hover:text-primary">
+            Servicios
           </Link>
           <Link href="#nosotros" className="text-sm font-medium hover:text-primary">
             Nosotros
+          </Link>
+          <Link href="#preguntas" className="text-sm font-medium hover:text-primary">
+            Preguntas
           </Link>
           <Link href="#contacto" className="text-sm font-medium hover:text-primary">
             Contacto
@@ -50,18 +50,11 @@ export function Navbar() {
         <div className="border-t md:hidden">
           <div className="container py-4 flex flex-col gap-4">
             <Link
-              href="#cursos"
+              href="#servicios"
               className="text-sm font-medium hover:text-primary"
               onClick={() => setIsOpen(false)}
             >
-              Cursos
-            </Link>
-            <Link
-              href="#precios"
-              className="text-sm font-medium hover:text-primary"
-              onClick={() => setIsOpen(false)}
-            >
-              Precios
+              Servicios
             </Link>
             <Link
               href="#nosotros"
@@ -69,6 +62,13 @@ export function Navbar() {
               onClick={() => setIsOpen(false)}
             >
               Nosotros
+            </Link>
+            <Link
+              href="#preguntas"
+              className="text-sm font-medium hover:text-primary"
+              onClick={() => setIsOpen(false)}
+            >
+              Preguntas
             </Link>
             <Link
               href="#contacto"

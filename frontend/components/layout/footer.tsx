@@ -10,24 +10,36 @@ export function Footer() {
           <div className="flex flex-col gap-4">
             <Link href="/" className="flex items-center gap-2 font-semibold">
               <Car className="size-6" />
-              <span>Academia de Manejo</span>
+              <span>Academia de Manejo San Cristóbal VIP</span>
             </Link>
             <p className="text-sm text-muted-foreground">
-              Aprende a manejar con los mejores instructores. Clases
-              personalizadas para todas las edades.
+              Centro de entrenamiento especializado en formación de conductores seguros y capacitados en Ayacucho.
             </p>
           </div>
 
           <div className="flex flex-col gap-4">
+            <h3 className="font-semibold">Servicios</h3>
+            <Link href="#servicios" className="text-sm text-muted-foreground hover:text-primary">
+              Simulacro Tipo Examen
+            </Link>
+            <Link href="#servicios" className="text-sm text-muted-foreground hover:text-primary">
+              Circuito Libre
+            </Link>
+            <Link href="#servicios" className="text-sm text-muted-foreground hover:text-primary">
+              Paquete San Cristóbal
+            </Link>
+            <Link href="#servicios" className="text-sm text-muted-foreground hover:text-primary">
+              Asesoría en Trámites
+            </Link>
+          </div>
+
+          <div className="flex flex-col gap-4">
             <h3 className="font-semibold">Enlaces</h3>
-            <Link href="#cursos" className="text-sm text-muted-foreground hover:text-primary">
-              Cursos
-            </Link>
-            <Link href="#precios" className="text-sm text-muted-foreground hover:text-primary">
-              Precios
-            </Link>
             <Link href="#nosotros" className="text-sm text-muted-foreground hover:text-primary">
-              Nosotros
+              Sobre Nosotros
+            </Link>
+            <Link href="#preguntas" className="text-sm text-muted-foreground hover:text-primary">
+              Preguntas Frecuentes
             </Link>
             <Link href="#contacto" className="text-sm text-muted-foreground hover:text-primary">
               Contacto
@@ -38,35 +50,28 @@ export function Footer() {
             <h3 className="font-semibold">Contacto</h3>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <MapPin className="size-4" />
-              <span>Av. Principal 123, Ciudad</span>
+              <span>Jr. Los Morochucos N° 349, Ayacucho</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Phone className="size-4" />
-              <span>+1 234 567 890</span>
+              <span>WhatsApp (canal principal)</span>
             </div>
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Mail className="size-4" />
-              <span>info@academiamanejo.com</span>
+              <span>Facebook</span>
             </div>
-          </div>
-
-          <div className="flex flex-col gap-4">
-            <h3 className="font-semibold">Horario</h3>
-            <p className="text-sm text-muted-foreground">
-              Lunes - Viernes: 8:00 AM - 6:00 PM
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Sabados: 9:00 AM - 2:00 PM
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Domingos: Cerrado
-            </p>
+            <div className="flex items-center gap-2 text-sm text-muted-foreground mt-2">
+              <span className="text-xs text-muted-foreground">Referencia: A unas cuadras del Arco Magisterial</span>
+            </div>
           </div>
         </div>
 
         <div className="mt-12 pt-8 border-t text-center">
           <p className="text-sm text-muted-foreground">
-            2026 Academia de Manejo. Todos los derechos reservados.
+            Academia de Manejo San Cristóbal VIP · Jr. Los Morochucos N° 349, Ayacucho, Perú
+          </p>
+          <p className="text-sm text-muted-foreground mt-2">
+            2026 Academia de Manejo San Cristóbal VIP. Todos los derechos reservados.
           </p>
         </div>
       </div>

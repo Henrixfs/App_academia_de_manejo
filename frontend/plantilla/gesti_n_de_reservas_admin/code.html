@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gestión de Reservas - San Cristóbal VIP</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&amp;family=Manrope:wght@600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#ffffff",
+                        "on-surface-variant": "#45464d",
+                        "outline": "#76777d",
+                        "tertiary": "#000000",
+                        "on-tertiary-fixed": "#001a42",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed-dim": "#adc6ff",
+                        "on-primary-fixed": "#131b2e",
+                        "surface-variant": "#e0e3e5",
+                        "on-tertiary-container": "#3980f4",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "secondary-fixed": "#ffddb8",
+                        "surface-container-highest": "#e0e3e5",
+                        "tertiary-fixed": "#d8e2ff",
+                        "on-surface": "#191c1e",
+                        "surface-container": "#eceef0",
+                        "inverse-primary": "#bec6e0",
+                        "success-green": "#10B981",
+                        "inverse-surface": "#2d3133",
+                        "on-background": "#191c1e",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "primary-container": "#131b2e",
+                        "on-secondary-container": "#684000",
+                        "outline-variant": "#c6c6cd",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "surface": "#f7f9fb",
+                        "primary": "#000000",
+                        "on-primary-container": "#7c839b",
+                        "safety-blue": "#1E3A8A",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#855300",
+                        "background": "#f7f9fb",
+                        "surface-container-high": "#e6e8ea",
+                        "road-gray": "#475569",
+                        "surface-dim": "#d8dadc",
+                        "primary-fixed": "#dae2fd",
+                        "on-secondary-fixed": "#2a1700",
+                        "secondary-container": "#fea619",
+                        "surface-container-low": "#f2f4f6",
+                        "caution-amber": "#D97706",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#001a42",
+                        "surface-bright": "#f7f9fb",
+                        "primary-fixed-dim": "#bec6e0",
+                        "surface-tint": "#565e74",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "inverse-on-surface": "#eff1f3",
+                        "on-tertiary-fixed-variant": "#004395"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "24px",
+                        "xl": "80px",
+                        "sm": "16px",
+                        "margin-mobile": "16px",
+                        "xs": "8px",
+                        "margin-desktop": "64px",
+                        "lg": "48px",
+                        "gutter": "24px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Manrope"],
+                        "body-lg": ["Inter"],
+                        "display-lg": ["Manrope"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Manrope"],
+                        "headline-lg-mobile": ["Manrope"],
+                        "label-md": ["Inter"],
+                        "caption": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "caption": ["12px", { "lineHeight": "16px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-background text-on-background min-h-screen flex flex-col pt-20">
+<!-- TopNavBar (Admin Context) -->
+<nav class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-margin-desktop h-20 shadow-sm bg-surface">
+<div class="font-headline-md text-headline-md font-bold text-primary">San Cristóbal VIP - Admin</div>
+<div class="hidden md:flex gap-md">
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-safety-blue transition-colors" href="#">Dashboard</a>
+<a class="font-label-md text-label-md text-primary font-bold border-b-2 border-primary pb-1" href="#">Reservas</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-safety-blue transition-colors" href="#">Alumnos</a>
+<a class="font-label-md text-label-md text-on-surface-variant hover:text-safety-blue transition-colors" href="#">Configuración</a>
+</div>
+<button class="bg-primary text-on-primary font-label-md text-label-md px-md py-sm rounded-lg hover:bg-opacity-90 transition-all scale-95 active:opacity-80">Cerrar Sesión</button>
+</nav>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-[1280px] mx-auto px-margin-mobile md:px-margin-desktop py-lg">
+<!-- Header & Actions -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-md mb-lg">
+<div>
+<h1 class="font-display-lg text-display-lg md:text-headline-lg-mobile text-primary mb-xs">Gestión de Reservas</h1>
+<p class="font-body-lg text-body-lg text-on-surface-variant">Administra las clases y simulacros programados.</p>
+</div>
+<button class="bg-safety-blue text-on-primary font-label-md text-label-md px-md py-sm rounded-lg flex items-center gap-xs shadow-md hover:scale-105 transition-transform active:scale-95" onclick="document.getElementById('nueva-reserva-modal').classList.remove('hidden')">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">add</span>
+                Nueva Reserva
+            </button>
+</div>
+<!-- Filters Section (Bento Style) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md mb-lg">
+<!-- Status Filter -->
+<div class="bg-surface-container-lowest p-md rounded-xl shadow-sm border border-surface-dim">
+<label class="block font-label-md text-label-md text-primary mb-sm">Estado de Reserva</label>
+<div class="flex flex-wrap gap-sm">
+<button class="px-sm py-xs rounded-full border border-outline-variant font-caption text-caption text-on-surface-variant hover:bg-surface-container transition-colors focus:ring-2 focus:ring-safety-blue focus:bg-primary-fixed focus:text-on-primary-fixed">Todos</button>
+<button class="px-sm py-xs rounded-full border border-caution-amber bg-caution-amber/10 font-caption text-caption text-caution-amber focus:ring-2 focus:ring-caution-amber">Pendientes</button>
+<button class="px-sm py-xs rounded-full border border-success-green bg-success-green/10 font-caption text-caption text-success-green focus:ring-2 focus:ring-success-green">Completadas</button>
+<button class="px-sm py-xs rounded-full border border-error bg-error/10 font-caption text-caption text-error focus:ring-2 focus:ring-error">Canceladas</button>
+</div>
+</div>
+<!-- Date Range Filter -->
+<div class="bg-surface-container-lowest p-md rounded-xl shadow-sm border border-surface-dim md:col-span-2 flex flex-col md:flex-row items-end gap-md">
+<div class="w-full">
+<label class="block font-label-md text-label-md text-primary mb-xs">Desde</label>
+<input class="w-full border-road-gray border rounded-lg p-sm font-body-md text-body-md text-on-surface focus:border-safety-blue focus:ring-1 focus:ring-safety-blue outline-none transition-colors" type="date"/>
+</div>
+<div class="w-full">
+<label class="block font-label-md text-label-md text-primary mb-xs">Hasta</label>
+<input class="w-full border-road-gray border rounded-lg p-sm font-body-md text-body-md text-on-surface focus:border-safety-blue focus:ring-1 focus:ring-safety-blue outline-none transition-colors" type="date"/>
+</div>
+<button class="bg-surface-container-highest text-primary font-label-md text-label-md px-md py-sm rounded-lg hover:bg-surface-dim transition-colors h-[48px] w-full md:w-auto">Filtrar</button>
+</div>
+</div>
+<!-- Reservations List/Table -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-surface-dim overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse min-w-[800px]">
+<thead>
+<tr class="bg-primary-container text-on-primary border-b border-surface-dim">
+<th class="p-sm font-label-md text-label-md font-bold">Alumno</th>
+<th class="p-sm font-label-md text-label-md font-bold">Servicio</th>
+<th class="p-sm font-label-md text-label-md font-bold">Fecha / Hora</th>
+<th class="p-sm font-label-md text-label-md font-bold">Estado</th>
+<th class="p-sm font-label-md text-label-md font-bold text-right">Acciones</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md">
+<!-- Row 1 -->
+<tr class="border-b border-surface-dim hover:bg-surface-container transition-colors group">
+<td class="p-sm">
+<div class="font-bold text-primary">Carlos Quispe</div>
+<div class="font-caption text-caption text-on-surface-variant">DNI: 72839102</div>
+</td>
+<td class="p-sm text-road-gray">Clase Práctica (A-I)</td>
+<td class="p-sm">
+<div class="text-primary">24 Oct, 2024</div>
+<div class="text-on-surface-variant text-sm">09:00 AM - 11:00 AM</div>
+</td>
+<td class="p-sm">
+<span class="px-xs py-[2px] rounded-full bg-caution-amber/10 text-caution-amber border border-caution-amber/30 font-caption text-caption flex items-center gap-1 w-fit">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">pending</span>
+                                    Pendiente
+                                </span>
+</td>
+<td class="p-sm text-right">
+<div class="flex justify-end gap-xs opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-safety-blue hover:bg-safety-blue/10 p-xs rounded-full transition-colors tooltip" title="Reprogramar">
+<span class="material-symbols-outlined">edit_calendar</span>
+</button>
+<button class="text-error hover:bg-error/10 p-xs rounded-full transition-colors tooltip" title="Cancelar">
+<span class="material-symbols-outlined">cancel</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="border-b border-surface-dim bg-surface-container-low hover:bg-surface-container transition-colors group">
+<td class="p-sm">
+<div class="font-bold text-primary">Maria Fernandez</div>
+<div class="font-caption text-caption text-on-surface-variant">DNI: 45920183</div>
+</td>
+<td class="p-sm text-road-gray">Simulacro Touring</td>
+<td class="p-sm">
+<div class="text-primary">23 Oct, 2024</div>
+<div class="text-on-surface-variant text-sm">02:00 PM - 03:00 PM</div>
+</td>
+<td class="p-sm">
+<span class="px-xs py-[2px] rounded-full bg-success-green/10 text-success-green border border-success-green/30 font-caption text-caption flex items-center gap-1 w-fit">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+                                    Completada
+                                </span>
+</td>
+<td class="p-sm text-right">
+<div class="flex justify-end gap-xs opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-on-surface-variant hover:bg-surface-dim p-xs rounded-full transition-colors tooltip" title="Ver Detalles">
+<span class="material-symbols-outlined">visibility</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Row 3 -->
+<tr class="border-b border-surface-dim hover:bg-surface-container transition-colors group">
+<td class="p-sm">
+<div class="font-bold text-primary">Juan Perez</div>
+<div class="font-caption text-caption text-on-surface-variant">DNI: 10293847</div>
+</td>
+<td class="p-sm text-road-gray">Clase Teórica</td>
+<td class="p-sm">
+<div class="text-primary">25 Oct, 2024</div>
+<div class="text-on-surface-variant text-sm">10:00 AM - 12:00 PM</div>
+</td>
+<td class="p-sm">
+<span class="px-xs py-[2px] rounded-full bg-error/10 text-error border border-error/30 font-caption text-caption flex items-center gap-1 w-fit">
+<span class="material-symbols-outlined text-[14px]" style="font-variation-settings: 'FILL' 1;">error</span>
+                                    Cancelada
+                                </span>
+</td>
+<td class="p-sm text-right">
+<div class="flex justify-end gap-xs opacity-0 group-hover:opacity-100 transition-opacity">
+<button class="text-on-surface-variant hover:bg-surface-dim p-xs rounded-full transition-colors tooltip" title="Ver Motivo">
+<span class="material-symbols-outlined">info</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="p-md flex justify-between items-center border-t border-surface-dim bg-surface-bright">
+<span class="font-caption text-caption text-on-surface-variant">Mostrando 1 - 3 de 45 reservas</span>
+<div class="flex gap-xs">
+<button class="p-xs border border-outline-variant rounded hover:bg-surface-container transition-colors text-on-surface-variant disabled:opacity-50" disabled="">
+<span class="material-symbols-outlined">chevron_left</span>
+</button>
+<button class="p-xs border border-outline-variant rounded hover:bg-surface-container transition-colors text-on-surface-variant">
+<span class="material-symbols-outlined">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-lg px-margin-desktop flex flex-col md:flex-row justify-between gap-md bg-primary-container text-on-primary-container mt-auto">
+<div class="font-headline-md text-headline-md font-bold text-on-primary-container">San Cristóbal VIP</div>
+<div class="font-body-md text-body-md">
+<p>© 2024 Academia de Manejo San Cristóbal VIP. Todos los derechos reservados.</p>
+</div>
+<div class="flex gap-md font-caption text-caption opacity-80">
+<span>Jr. Los Morochucos N° 349, Ayacucho</span>
+<span>Horarios: Lun-Sab 8am-7pm</span>
+</div>
+</footer>
+<!-- Modal: Nueva Reserva -->
+<div class="fixed inset-0 z-[100] hidden bg-primary/50 backdrop-blur-sm flex items-center justify-center px-margin-mobile" id="nueva-reserva-modal">
+<div class="bg-surface-container-lowest w-full max-w-lg rounded-xl shadow-lg border border-surface-dim overflow-hidden transform transition-all scale-100">
+<!-- Modal Header -->
+<div class="bg-primary-container text-on-primary p-md flex justify-between items-center">
+<h2 class="font-headline-md text-headline-md">Nueva Reserva</h2>
+<button class="text-on-primary hover:text-safety-blue transition-colors" onclick="document.getElementById('nueva-reserva-modal').classList.add('hidden')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Modal Body -->
+<div class="p-md flex flex-col gap-md">
+<div>
+<label class="block font-label-md text-label-md text-primary mb-xs">Seleccionar Alumno</label>
+<div class="relative">
+<span class="material-symbols-outlined absolute left-sm top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input class="w-full pl-[40px] pr-sm py-sm border-road-gray border rounded-lg font-body-md text-body-md text-on-surface focus:border-safety-blue focus:ring-1 focus:ring-safety-blue outline-none transition-colors" placeholder="Buscar por DNI o Nombre..." type="text"/>
+</div>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-primary mb-xs">Servicio</label>
+<select class="w-full border-road-gray border rounded-lg p-sm font-body-md text-body-md text-on-surface focus:border-safety-blue focus:ring-1 focus:ring-safety-blue outline-none transition-colors bg-surface-container-lowest">
+<option>Clase Práctica (A-I)</option>
+<option>Clase Teórica</option>
+<option>Simulacro Touring</option>
+<option>Evaluación Médica (Derivación)</option>
+</select>
+</div>
+<div class="grid grid-cols-2 gap-sm">
+<div>
+<label class="block font-label-md text-label-md text-primary mb-xs">Fecha</label>
+<input class="w-full border-road-gray border rounded-lg p-sm font-body-md text-body-md text-on-surface focus:border-safety-blue focus:ring-1 focus:ring-safety-blue outline-none transition-colors" type="date"/>
+</div>
+<div>
+<label class="block font-label-md text-label-md text-primary mb-xs">Hora</label>
+<input class="w-full border-road-gray border rounded-lg p-sm font-body-md text-body-md text-on-surface focus:border-safety-blue focus:ring-1 focus:ring-safety-blue outline-none transition-colors" type="time"/>
+</div>
+</div>
+</div>
+<!-- Modal Footer -->
+<div class="p-md border-t border-surface-dim bg-surface-bright flex justify-end gap-sm">
+<button class="px-md py-sm rounded-lg border border-outline-variant text-on-surface-variant font-label-md text-label-md hover:bg-surface-container transition-colors" onclick="document.getElementById('nueva-reserva-modal').classList.add('hidden')">Cancelar</button>
+<button class="bg-safety-blue text-on-primary px-md py-sm rounded-lg font-label-md text-label-md hover:bg-opacity-90 shadow-sm transition-all active:scale-95">Confirmar Reserva</button>
+</div>
+</div>
+</div>
+</body></html>

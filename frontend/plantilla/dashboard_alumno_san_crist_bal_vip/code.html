@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Dashboard del Alumno - Academia San Cristóbal VIP</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700;800&amp;family=Inter:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary": "#ffffff",
+                        "on-surface-variant": "#45464d",
+                        "outline": "#76777d",
+                        "tertiary": "#000000",
+                        "on-tertiary-fixed": "#001a42",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed-dim": "#adc6ff",
+                        "on-primary-fixed": "#131b2e",
+                        "surface-variant": "#e0e3e5",
+                        "on-tertiary-container": "#3980f4",
+                        "on-primary-fixed-variant": "#3f465c",
+                        "on-secondary-fixed-variant": "#653e00",
+                        "secondary-fixed": "#ffddb8",
+                        "surface-container-highest": "#e0e3e5",
+                        "tertiary-fixed": "#d8e2ff",
+                        "on-surface": "#191c1e",
+                        "surface-container": "#eceef0",
+                        "inverse-primary": "#bec6e0",
+                        "success-green": "#10B981",
+                        "inverse-surface": "#2d3133",
+                        "on-background": "#191c1e",
+                        "on-primary": "#ffffff",
+                        "on-error-container": "#93000a",
+                        "primary-container": "#131b2e",
+                        "on-secondary-container": "#684000",
+                        "outline-variant": "#c6c6cd",
+                        "error": "#ba1a1a",
+                        "on-error": "#ffffff",
+                        "surface": "#f7f9fb",
+                        "primary": "#000000",
+                        "on-primary-container": "#7c839b",
+                        "safety-blue": "#1E3A8A",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary": "#855300",
+                        "background": "#f7f9fb",
+                        "surface-container-high": "#e6e8ea",
+                        "road-gray": "#475569",
+                        "surface-dim": "#d8dadc",
+                        "primary-fixed": "#dae2fd",
+                        "on-secondary-fixed": "#2a1700",
+                        "secondary-container": "#fea619",
+                        "surface-container-low": "#f2f4f6",
+                        "caution-amber": "#D97706",
+                        "on-tertiary": "#ffffff",
+                        "tertiary-container": "#001a42",
+                        "surface-bright": "#f7f9fb",
+                        "primary-fixed-dim": "#bec6e0",
+                        "surface-tint": "#565e74",
+                        "secondary-fixed-dim": "#ffb95f",
+                        "inverse-on-surface": "#eff1f3",
+                        "on-tertiary-fixed-variant": "#004395"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "24px",
+                        "xl": "80px",
+                        "sm": "16px",
+                        "margin-mobile": "16px",
+                        "xs": "8px",
+                        "margin-desktop": "64px",
+                        "lg": "48px",
+                        "gutter": "24px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Manrope"],
+                        "body-lg": ["Inter"],
+                        "display-lg": ["Manrope"],
+                        "body-md": ["Inter"],
+                        "headline-md": ["Manrope"],
+                        "headline-lg-mobile": ["Manrope"],
+                        "label-md": ["Inter"],
+                        "caption": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["32px", { "lineHeight": "40px", "fontWeight": "700" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "800" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.05em", "fontWeight": "600" }],
+                        "caption": ["12px", { "lineHeight": "16px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+        }
+        .ambient-shadow {
+            box-shadow: 0 4px 20px rgba(30, 58, 138, 0.15); /* Tinted with Deep Navy (Safety Blue) */
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md selection:bg-safety-blue selection:text-white antialiased overflow-x-hidden min-h-screen flex flex-col md:flex-row">
+<!-- Sidebar / Top Nav (Responsive) -->
+<!-- JSON specifies TopNavBar, but prompt requests lateral sidebar for modern layout. We adapt TopNavBar to a SideNav for Desktop, BottomNav for Mobile based on Semantic Shell Rules. -->
+<!-- Mobile Header (Visible only on mobile) -->
+<header class="md:hidden fixed top-0 left-0 w-full z-50 bg-surface shadow-sm h-20 flex justify-between items-center px-margin-mobile">
+<div class="font-headline-lg-mobile text-headline-lg-mobile font-bold text-primary">San Cristóbal VIP</div>
+<button class="text-primary p-2">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+</header>
+<!-- Desktop Sidebar (Hidden on Mobile, Visible on md+) -->
+<aside class="hidden md:flex flex-col fixed top-0 left-0 h-full w-64 bg-surface shadow-sm z-40 p-md justify-between">
+<div>
+<div class="font-headline-md text-headline-md font-bold text-primary mb-xl pl-xs">San Cristóbal VIP</div>
+<nav class="flex flex-col gap-sm">
+<!-- Acceso Alumnos is the primary action, but dashboard is active -->
+<a class="flex items-center gap-xs px-sm py-xs rounded-lg text-primary bg-primary-container/10 font-bold font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+                    Mi Perfil
+                </a>
+<a class="flex items-center gap-xs px-sm py-xs rounded-lg text-on-surface-variant hover:text-safety-blue transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">calendar_month</span>
+                    Reservas
+                </a>
+<a class="flex items-center gap-xs px-sm py-xs rounded-lg text-on-surface-variant hover:text-safety-blue transition-colors font-label-md text-label-md" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">history</span>
+                    Historial
+                </a>
+</nav>
+</div>
+<div>
+<a class="flex items-center justify-center gap-xs w-full py-sm rounded-lg bg-primary text-on-primary font-label-md text-label-md font-bold hover:opacity-90 transition-opacity" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">logout</span>
+                Cerrar Sesión
+            </a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="flex-1 mt-20 md:mt-0 md:ml-64 p-margin-mobile md:p-lg lg:p-margin-desktop bg-background flex flex-col gap-lg">
+<!-- Header / Welcome -->
+<section class="flex flex-col md:flex-row justify-between items-start md:items-end gap-sm w-full">
+<div>
+<h1 class="font-headline-lg-mobile text-headline-lg-mobile md:font-headline-lg md:text-headline-lg text-primary">Bienvenido, Carlos</h1>
+<p class="font-body-md text-body-md text-on-surface-variant mt-base">Tu panel de progreso en Academia San Cristóbal VIP.</p>
+</div>
+<div class="flex items-center gap-sm">
+<div class="bg-surface-container px-sm py-xs rounded-full border border-outline-variant flex items-center gap-xs">
+<span class="material-symbols-outlined text-safety-blue text-sm" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="font-label-md text-label-md text-on-surface">Nivel: Intermedio</span>
+</div>
+</div>
+</section>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-md w-full">
+<!-- Progress Widget (Spans 8 cols on desktop) -->
+<div class="col-span-1 md:col-span-8 bg-surface rounded-xl p-md border border-outline-variant ambient-shadow flex flex-col justify-between">
+<div>
+<div class="flex justify-between items-center mb-sm">
+<h2 class="font-headline-md text-headline-md text-primary">Progreso de Licencia</h2>
+<span class="font-label-md text-label-md text-safety-blue">65% Completado</span>
+</div>
+<p class="font-body-md text-body-md text-on-surface-variant mb-md">Has completado 13 de 20 horas de práctica requeridas para tu examen final en el Touring.</p>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-4 overflow-hidden relative">
+<div class="bg-safety-blue h-full absolute top-0 left-0 transition-all duration-1000 ease-out" style="width: 65%;"></div>
+</div>
+<div class="flex justify-between mt-xs font-caption text-caption text-on-surface-variant">
+<span>Inicio (Básico)</span>
+<span>Intermedio</span>
+<span>Pre-Examen</span>
+</div>
+</div>
+<!-- Profile Summary / ID Card (Spans 4 cols on desktop) -->
+<div class="col-span-1 md:col-span-4 bg-primary-container text-on-primary-container rounded-xl p-md ambient-shadow relative overflow-hidden flex flex-col justify-center items-center text-center">
+<div class="absolute top-0 right-0 w-32 h-32 bg-safety-blue opacity-20 rounded-full blur-2xl -mr-10 -mt-10"></div>
+<div class="w-20 h-20 rounded-full border-2 border-on-primary-container overflow-hidden mb-sm relative">
+<img class="object-cover w-full h-full" data-alt="A professional, well-lit studio portrait of a young male driving student in his 20s, looking confidently at the camera. He wears a casual blue shirt. The background is a solid, clean light-mode studio backdrop. Corporate modern aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBgFfJsMuC8GUTi2jUV7iEd3EuczbCr1bdPnru5T_r_uZ06TqhPhxs4wXFoYZHth25TkbVw_qnL6Gy_U7Iq7MjF_-XJxUFIJDczulIbqIjJnW9aMqotMjTn20g1N0KIg5yYILJ7Juk1rHKfLVGfgbTx-jAUUqhy6l8Pw0-pi8_ZxrXIuCYfL_xaaYeycQR9Bd1MtyIQYACh_J7eZGYG62RCFyxDJxPMloE8IyUH0njbxyQFN6bVwoJ6fUREoFNfbYRDzb7UQ1wgF20"/>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-primary-fixed mb-base">Carlos Mendoza</h3>
+<p class="font-label-md text-label-md opacity-80 mb-sm">DNI: 76543210</p>
+<div class="flex gap-2">
+<span class="px-3 py-1 bg-surface/20 rounded-full font-caption text-caption">Categoría: A-I</span>
+<span class="px-3 py-1 bg-safety-blue/20 text-on-primary-fixed rounded-full font-caption text-caption">Activo</span>
+</div>
+</div>
+<!-- Próximas Reservas (Spans 6 cols) -->
+<div class="col-span-1 md:col-span-6 bg-surface rounded-xl p-md border border-outline-variant ambient-shadow">
+<div class="flex justify-between items-center mb-md">
+<h2 class="font-headline-md text-headline-md text-primary">Próximas Reservas</h2>
+<a class="font-label-md text-label-md text-safety-blue hover:underline" href="#">Ver Calendario</a>
+</div>
+<div class="flex flex-col gap-sm">
+<!-- Reservation Card -->
+<div class="flex items-center justify-between p-sm border border-outline-variant rounded-lg hover:border-safety-blue transition-colors group">
+<div class="flex items-center gap-sm">
+<div class="w-12 h-12 bg-safety-blue/10 rounded-lg flex items-center justify-center text-safety-blue group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">directions_car</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-primary">Práctica de Estacionamiento Paralelo</h4>
+<p class="font-caption text-caption text-on-surface-variant">Instructor: Marco Reyes</p>
+</div>
+</div>
+<div class="text-right">
+<div class="font-label-md text-label-md text-primary">15 Nov</div>
+<div class="font-caption text-caption text-safety-blue">14:00 - 16:00</div>
+</div>
+</div>
+<!-- Reservation Card -->
+<div class="flex items-center justify-between p-sm border border-outline-variant rounded-lg hover:border-safety-blue transition-colors group">
+<div class="flex items-center gap-sm">
+<div class="w-12 h-12 bg-surface-container-high rounded-lg flex items-center justify-center text-on-surface-variant group-hover:scale-105 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">route</span>
+</div>
+<div>
+<h4 class="font-label-md text-label-md text-primary">Simulacro en Circuito</h4>
+<p class="font-caption text-caption text-on-surface-variant">Touring - Conchan</p>
+</div>
+</div>
+<div class="text-right">
+<div class="font-label-md text-label-md text-primary">18 Nov</div>
+<div class="font-caption text-caption text-safety-blue">09:00 - 11:00</div>
+</div>
+</div>
+</div>
+<button class="w-full mt-sm py-sm rounded-lg border-2 border-primary text-primary bg-surface font-label-md text-label-md font-bold hover:bg-surface-container transition-colors">
+                    Agendar Nueva Práctica
+                </button>
+</div>
+<!-- Historial y Faltas (Spans 6 cols) -->
+<div class="col-span-1 md:col-span-6 bg-surface rounded-xl p-md border border-outline-variant ambient-shadow flex flex-col">
+<h2 class="font-headline-md text-headline-md text-primary mb-md">Historial y Evaluación</h2>
+<div class="flex-1 overflow-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-outline-variant text-on-surface-variant font-label-md text-label-md">
+<th class="py-xs pr-xs font-semibold">Fecha</th>
+<th class="py-xs px-xs font-semibold">Servicio</th>
+<th class="py-xs px-xs font-semibold text-center">Faltas</th>
+<th class="py-xs pl-xs font-semibold text-right">Estado</th>
+</tr>
+</thead>
+<tbody class="font-body-md text-body-md">
+<tr class="border-b border-surface-container hover:bg-surface-container-low transition-colors">
+<td class="py-sm pr-xs text-on-surface">10 Nov</td>
+<td class="py-sm px-xs text-on-surface">Práctica de Ruta</td>
+<td class="py-sm px-xs text-center">
+<span class="inline-block w-6 h-6 rounded-full bg-error-container text-on-error-container text-caption flex items-center justify-center font-bold">1</span>
+<span class="text-caption text-on-surface-variant block mt-1">Leve (Espejo)</span>
+</td>
+<td class="py-sm pl-xs text-right text-success-green font-label-md">Aprobado</td>
+</tr>
+<!-- Red tinted row for elimination fault -->
+<tr class="border-b border-error-container bg-error-container/20 hover:bg-error-container/30 transition-colors">
+<td class="py-sm pr-xs text-on-surface">05 Nov</td>
+<td class="py-sm px-xs text-on-surface">Estacionamiento Diagonal</td>
+<td class="py-sm px-xs text-center">
+<span class="inline-block px-2 py-1 rounded bg-error text-on-error text-caption font-bold">Eliminatoria</span>
+<span class="text-caption text-on-surface-variant block mt-1">Pisó línea</span>
+</td>
+<td class="py-sm pl-xs text-right text-error font-label-md">Reprobado</td>
+</tr>
+<tr class="hover:bg-surface-container-low transition-colors">
+<td class="py-sm pr-xs text-on-surface">02 Nov</td>
+<td class="py-sm px-xs text-on-surface">Clase Bésica</td>
+<td class="py-sm px-xs text-center">
+<span class="text-caption text-on-surface-variant">Sin faltas</span>
+</td>
+<td class="py-sm pl-xs text-right text-success-green font-label-md">Excelente</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+</main>
+<!-- Mobile Bottom Navigation (Visible only on mobile, replacing sidebar per rules) -->
+<nav class="md:hidden fixed bottom-0 left-0 w-full bg-surface shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-50 flex justify-around items-center h-16 border-t-0">
+<a class="flex flex-col items-center justify-center w-full h-full text-safety-blue font-bold border-t-2 border-safety-blue bg-primary-container/5" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-caption text-caption mt-1">Perfil</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant hover:text-safety-blue transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">calendar_month</span>
+<span class="font-caption text-caption mt-1">Reservas</span>
+</a>
+<a class="flex flex-col items-center justify-center w-full h-full text-on-surface-variant hover:text-safety-blue transition-colors" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">history</span>
+<span class="font-caption text-caption mt-1">Historial</span>
+</a>
+</nav>
+<!-- Footer - Hidden on Dashboard per Semantic Shell Rules (Dashboard is a focused journey, but if requested we include it. Usually suppressed on Dashboards. We will suppress it to prioritize the Canvas.) -->
+</body></html>
