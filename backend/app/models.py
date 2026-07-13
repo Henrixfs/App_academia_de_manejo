@@ -60,7 +60,8 @@ class Alumno(Base):
     apellidos = Column(String(100), nullable=False)
     documento_identidad = Column(String(20), nullable=False, unique=True, index=True)
     telefono = Column(String(20), nullable=False)
-    email = Column(String(100), nullable=True)
+    email = Column(String(100), nullable=True, unique=True, index=True)
+    password_hash = Column(String(255), nullable=True)
     fecha_registro = Column(
         DateTime(timezone=True),
         server_default=func.now(),
@@ -261,6 +262,33 @@ class Reserva(Base):
 # 6. ProgresoNivel
 # ---------------------------------------------------------------------------
 
+class Administrador(Base):
+    """Administrador del sistema."""
+
+    __tablename__ = "administradores"
+
+    id = Column(
+        UUID(as_uuid=True),
+        primary_key=True,
+        default=uuid.uuid4,
+        index=True,
+    )
+    email = Column(String(100), nullable=False, unique=True, index=True)
+    password_hash = Column(String(255), nullable=False)
+    nombres = Column(String(100), nullable=False)
+    apellidos = Column(String(100), nullable=False)
+    telefono = Column(String(20), nullable=True)
+    activo = Column(Boolean, default=True)
+    fecha_creacion = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
+
+    def __repr__(self) -> str:
+        return f"<Administrador(id={self.id}, email={self.email})>"
+
+
 class ProgresoNivel(Base):
     """Seguimiento de la evolución pedagógica del alumno por nivel curricular."""
 
@@ -320,6 +348,11 @@ class Falta(Base):
     descripcion = Column(Text, nullable=False)
     minuto_ocurrencia = Column(Integer, nullable=True)
     observaciones = Column(Text, nullable=True)
+    fecha_creacion = Column(
+        DateTime(timezone=True),
+        server_default=func.now(),
+        nullable=False,
+    )
 
     __table_args__ = (
         CheckConstraint(

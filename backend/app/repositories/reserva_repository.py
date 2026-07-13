@@ -2,6 +2,7 @@
 Repository para Reservas.
 """
 
+import uuid
 from typing import Optional, List
 from datetime import datetime
 from sqlalchemy.orm import Session
@@ -16,41 +17,42 @@ class ReservaRepository(BaseRepository[Reserva]):
     def __init__(self, db: Session):
         super().__init__(db, Reserva)
 
-    def get_by_alumno(self, alumno_id: int) -> List[Reserva]:
+    def get_by_alumno(self, alumno_id: uuid.UUID) -> List[Reserva]:
         """Obtener todas las reservas de un alumno."""
         return self.db.query(Reserva).filter(Reserva.alumno_id == alumno_id).all()
 
-    def get_proximas(self, alumno_id: int) -> List[Reserva]:
+    def get_proximas(self, alumno_id: uuid.UUID) -> List[Reserva]:
         """Obtener reservas próximas (no completadas/canceladas)."""
         return self.db.query(Reserva).filter(
             Reserva.alumno_id == alumno_id,
             Reserva.estado.in_([EstadoReserva.CONFIRMADA, EstadoReserva.REPROGRAMADA])
         ).all()
 
-    def existe_conflicto(self, fecha: datetime, hora: datetime, servicio_id: int) -> bool:
-        """Verificar si ya existe una reserva en esa fecha/hora/servicio."""
+    def existe_conflicto(self, inicio: datetime, fin: datetime, servicio_id: uuid.UUID) -> bool:
+        """Verificar si ya existe una reserva activa que se solape con este rango de tiempo para el mismo servicio."""
         return self.db.query(Reserva).filter(
-            Reserva.fecha == fecha,
-            Reserva.hora == hora,
-            Reserva.servicio_id == servicio_id,
-            Reserva.estado.in_([EstadoReserva.CONFIRMADA, EstadoReserva.REPROGRAMADA])
+            and_(
+                Reserva.servicio_id == servicio_id,
+                Reserva.estado.in_([EstadoReserva.CONFIRMADA, EstadoReserva.REPROGRAMADA]),
+                Reserva.fecha_hora_inicio < fin,
+                Reserva.fecha_hora_fin > inicio
+            )
         ).first() is not None
 
-    def contar_reprogramaciones(self, alumno_id: int) -> int:
+    def contar_reprogramaciones(self, alumno_id: uuid.UUID) -> int:
         """Contar cuántas reprogramaciones ha usado el alumno."""
         return self.db.query(Reserva).filter(
             Reserva.alumno_id == alumno_id,
             Reserva.estado == EstadoReserva.REPROGRAMADA
         ).count()
 
-    def puede_cancelar(self, reserva_id: int) -> bool:
+    def puede_cancelar(self, reserva_id: uuid.UUID) -> bool:
         """Verificar si una reserva puede ser cancelada (> 2 horas antes)."""
         reserva = self.get_by_id(reserva_id)
         if not reserva:
             return False
 
-        # Calcular diferencia en horas
-        ahora = datetime.now(reserva.fecha.tzinfo)
-        diferencia_horas = (reserva.fecha - ahora).total_seconds() / 3600
+        ahora = datetime.now(reserva.fecha_hora_inicio.tzinfo)
+        diferencia_horas = (reserva.fecha_hora_inicio - ahora).total_seconds() / 3600
 
         return diferencia_horas >= 2

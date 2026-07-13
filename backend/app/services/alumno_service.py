@@ -78,3 +78,11 @@ class AlumnoService:
         if not alumno:
             return None
         return AlumnoResponse.from_orm(alumno)
+
+    def obtener_por_email_o_documento(self, username: str) -> Optional[Alumno]:
+        """Obtener alumno por email o documento de identidad."""
+        return self.repo.get_by_email_or_documento(username)
+
+    def update_password_hash(self, alumno_id, password_hash: str) -> bool:
+        """Actualiza el password hash de un alumno."""
+        return self.repo.update_password_hash(alumno_id, password_hash)

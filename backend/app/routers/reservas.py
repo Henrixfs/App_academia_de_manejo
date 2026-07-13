@@ -2,9 +2,11 @@
 Rutas para gestión de Reservas.
 """
 
+import uuid
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
+from pydantic import BaseModel
 from datetime import datetime
 
 from app.database import get_db
@@ -14,13 +16,24 @@ from app.exceptions import (
     ReservaNotFound, AlumnoNotFound, ServicioNotFound,
     ReservaYaExiste, CancelacionNoPermitida, LimitReprogramacionesExcedido, ValorInvalido
 )
+from app.dependencies import get_current_user
 
 router = APIRouter(prefix="/api/reservas", tags=["Reservas"])
 
 
+class ReprogramarRequest(BaseModel):
+    """Cuerpo del request para reprogramar una reserva."""
+    nueva_fecha_hora_inicio: datetime
+    nueva_fecha_hora_fin: datetime
+
+
 @router.post("/", response_model=ReservaResponse, status_code=status.HTTP_201_CREATED)
-def crear_reserva(reserva_create: ReservaCreate, db: Session = Depends(get_db)):
-    """Crear una nueva reserva."""
+def crear_reserva(
+    reserva_create: ReservaCreate,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """Crear una nueva reserva. Requiere autenticación."""
     try:
         service = ReservaService(db)
         return service.crear_reserva(reserva_create)
@@ -29,25 +42,24 @@ def crear_reserva(reserva_create: ReservaCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/", response_model=List[ReservaResponse])
-def listar_reservas(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
-    """Listar todas las reservas."""
+def listar_reservas(
+    skip: int = 0,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """Listar todas las reservas. Requiere autenticación."""
     service = ReservaService(db)
     return service.listar_reservas(skip, limit)
 
 
-@router.get("/{reserva_id}", response_model=ReservaResponse)
-def obtener_reserva(reserva_id: int, db: Session = Depends(get_db)):
-    """Obtener una reserva por ID."""
-    try:
-        service = ReservaService(db)
-        return service.obtener_reserva(reserva_id)
-    except ReservaNotFound as e:
-        raise HTTPException(status_code=e.status_code, detail=e.message)
-
-
 @router.get("/alumno/{alumno_id}", response_model=List[ReservaResponse])
-def obtener_reservas_alumno(alumno_id: int, db: Session = Depends(get_db)):
-    """Obtener todas las reservas de un alumno."""
+def obtener_reservas_alumno(
+    alumno_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """Obtener todas las reservas de un alumno. Requiere autenticación."""
     try:
         service = ReservaService(db)
         return service.listar_por_alumno(alumno_id)
@@ -55,9 +67,27 @@ def obtener_reservas_alumno(alumno_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=e.status_code, detail=e.message)
 
 
+@router.get("/{reserva_id}", response_model=ReservaResponse)
+def obtener_reserva(
+    reserva_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """Obtener una reserva por ID. Requiere autenticación."""
+    try:
+        service = ReservaService(db)
+        return service.obtener_reserva(reserva_id)
+    except ReservaNotFound as e:
+        raise HTTPException(status_code=e.status_code, detail=e.message)
+
+
 @router.post("/{reserva_id}/cancelar", response_model=ReservaResponse)
-def cancelar_reserva(reserva_id: int, db: Session = Depends(get_db)):
-    """Cancelar una reserva."""
+def cancelar_reserva(
+    reserva_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """Cancelar una reserva. Requiere autenticación."""
     try:
         service = ReservaService(db)
         return service.cancelar_reserva(reserva_id)
@@ -66,18 +96,32 @@ def cancelar_reserva(reserva_id: int, db: Session = Depends(get_db)):
 
 
 @router.post("/{reserva_id}/reprogramar", response_model=ReservaResponse)
-def reprogramar_reserva(reserva_id: int, nueva_fecha: datetime, db: Session = Depends(get_db)):
-    """Reprogramar una reserva."""
+def reprogramar_reserva(
+    reserva_id: uuid.UUID,
+    data: ReprogramarRequest,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """Reprogramar una reserva con nueva fecha/hora. Requiere autenticación."""
     try:
         service = ReservaService(db)
-        return service.reprogramar_reserva(reserva_id, nueva_fecha)
+        return service.reprogramar_reserva(
+            reserva_id,
+            data.nueva_fecha_hora_inicio,
+            data.nueva_fecha_hora_fin,
+        )
     except (ReservaNotFound, LimitReprogramacionesExcedido, ReservaYaExiste, ValorInvalido) as e:
         raise HTTPException(status_code=e.status_code, detail=e.message)
 
 
 @router.put("/{reserva_id}", response_model=ReservaResponse)
-def actualizar_reserva(reserva_id: int, reserva_update: ReservaUpdate, db: Session = Depends(get_db)):
-    """Actualizar una reserva."""
+def actualizar_reserva(
+    reserva_id: uuid.UUID,
+    reserva_update: ReservaUpdate,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """Actualizar una reserva. Requiere autenticación."""
     try:
         service = ReservaService(db)
         return service.actualizar_reserva(reserva_id, reserva_update)

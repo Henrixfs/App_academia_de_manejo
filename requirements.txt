@@ -1,6 +1,6 @@
 FastAPI==0.104.1
 uvicorn[standard]==0.24.0
-SQLAlchemy==2.0.23
+SQLAlchemy==2.0.0
 alembic==1.13.1
 psycopg2-binary==2.9.9
 pg8000==1.30.3

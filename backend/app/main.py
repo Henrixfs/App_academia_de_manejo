@@ -21,17 +21,24 @@ app = FastAPI(
     openapi_url="/openapi.json",
 )
 
+# Disable trailing slash redirects
+app.router.redirect_slashes = False
+
 # CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],  # En producción, especificar dominios reales
+    allow_origins=[
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+        "http://192.168.48.1:3000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
 # Importar routers
-from app.routers import alumnos, reservas, paquetes, faltas, servicios
+from app.routers import alumnos, reservas, paquetes, faltas, servicios, auth, admin
 from app.exceptions import AcademiaException
 
 # Registrar routers
@@ -40,6 +47,8 @@ app.include_router(reservas.router)
 app.include_router(paquetes.router)
 app.include_router(faltas.router)
 app.include_router(servicios.router)
+app.include_router(auth.router)
+app.include_router(admin.router)
 
 # Manejo global de excepciones
 @app.exception_handler(AcademiaException)

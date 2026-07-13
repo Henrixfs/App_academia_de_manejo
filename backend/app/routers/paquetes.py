@@ -2,6 +2,7 @@
 Rutas para Paquetes.
 """
 
+import uuid
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -22,7 +23,7 @@ def listar_paquetes(db: Session = Depends(get_db)):
 
 
 @router.get("/{paquete_id}", response_model=PaqueteResponse)
-def obtener_paquete(paquete_id: int, db: Session = Depends(get_db)):
+def obtener_paquete(paquete_id: uuid.UUID, db: Session = Depends(get_db)):
     """Obtener un paquete por ID."""
     try:
         service = PaqueteService(db)

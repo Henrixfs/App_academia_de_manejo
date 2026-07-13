@@ -2,6 +2,7 @@
 Servicio para registro de Faltas en simulacros.
 """
 
+import uuid
 from typing import List
 from sqlalchemy.orm import Session
 from app.models import Falta, TipoFalta
@@ -26,20 +27,22 @@ class FaltaService:
             raise ReservaNotFound()
 
         # Validar tipo de falta válido
-        if falta_create.tipo not in [TipoFalta.LEVE, TipoFalta.GRAVE, TipoFalta.ELIMINATORIA]:
-            raise ValorInvalido("tipo", "Tipo de falta inválido")
+        if falta_create.tipo_falta not in [TipoFalta.LEVE, TipoFalta.GRAVE, TipoFalta.ELIMINATORIA]:
+            raise ValorInvalido("tipo_falta", "Tipo de falta inválido")
 
         # Crear falta
         falta = Falta(
             reserva_id=falta_create.reserva_id,
-            tipo=falta_create.tipo,
+            tipo_falta=falta_create.tipo_falta,
             descripcion=falta_create.descripcion,
+            minuto_ocurrencia=falta_create.minuto_ocurrencia,
+            observaciones=falta_create.observaciones,
         )
 
         falta = self.repo_falta.create(falta)
         return FaltaResponse.from_orm(falta)
 
-    def listar_faltas_por_reserva(self, reserva_id: int) -> List[FaltaResponse]:
+    def listar_faltas_por_reserva(self, reserva_id: uuid.UUID) -> List[FaltaResponse]:
         """Listar todas las faltas de una reserva."""
         if not self.repo_reserva.get_by_id(reserva_id):
             raise ReservaNotFound()

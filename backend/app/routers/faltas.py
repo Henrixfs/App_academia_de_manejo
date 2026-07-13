@@ -2,6 +2,7 @@
 Rutas para Faltas (registro en simulacros).
 """
 
+import uuid
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
@@ -10,13 +11,18 @@ from app.database import get_db
 from app.schemas import FaltaCreate, FaltaResponse
 from app.services.falta_service import FaltaService
 from app.exceptions import ReservaNotFound, ValorInvalido
+from app.dependencies import get_current_user
 
 router = APIRouter(prefix="/api/faltas", tags=["Faltas"])
 
 
 @router.post("/", response_model=FaltaResponse, status_code=status.HTTP_201_CREATED)
-def registrar_falta(falta_create: FaltaCreate, db: Session = Depends(get_db)):
-    """Registrar una falta en una reserva."""
+def registrar_falta(
+    falta_create: FaltaCreate,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """Registrar una falta en una reserva. Requiere autenticación."""
     try:
         service = FaltaService(db)
         return service.registrar_falta(falta_create)
@@ -25,8 +31,12 @@ def registrar_falta(falta_create: FaltaCreate, db: Session = Depends(get_db)):
 
 
 @router.get("/reserva/{reserva_id}", response_model=List[FaltaResponse])
-def obtener_faltas_reserva(reserva_id: int, db: Session = Depends(get_db)):
-    """Obtener todas las faltas de una reserva."""
+def obtener_faltas_reserva(
+    reserva_id: uuid.UUID,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """Obtener todas las faltas de una reserva. Requiere autenticación."""
     try:
         service = FaltaService(db)
         return service.listar_faltas_por_reserva(reserva_id)

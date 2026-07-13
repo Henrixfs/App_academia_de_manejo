@@ -3,7 +3,8 @@ Servicio de lógica de negocio para Reservas.
 Implementa reglas de negocio: cancelación 2h antes, máx 2 reprogramaciones gratis, etc.
 """
 
-from datetime import datetime, timedelta
+import uuid
+from datetime import datetime
 from typing import List
 from sqlalchemy.orm import Session
 from app.models import Reserva, EstadoReserva
@@ -38,20 +39,21 @@ class ReservaService:
             raise ServicioNotFound()
 
         # Validar fecha y hora en el futuro
-        ahora = datetime.now(reserva_create.fecha.tzinfo)
-        if reserva_create.fecha < ahora:
-            raise ValorInvalido("fecha", "La fecha no puede ser en el pasado")
+        fecha_inicio = reserva_create.fecha_hora_inicio
+        ahora = datetime.now(fecha_inicio.tzinfo) if fecha_inicio.tzinfo else datetime.now()
+        if fecha_inicio.replace(tzinfo=None) < ahora.replace(tzinfo=None):
+            raise ValorInvalido("fecha_hora_inicio", "La fecha no puede ser en el pasado")
 
         # Validar horario 8am-6pm
-        hora_inicio = reserva_create.fecha.replace(hour=8, minute=0)
-        hora_fin = reserva_create.fecha.replace(hour=18, minute=0)
-        if not (hora_inicio <= reserva_create.fecha < hora_fin):
-            raise ValorInvalido("fecha", "Debe ser entre 8:00 AM y 6:00 PM")
+        hora_inicio = fecha_inicio.replace(hour=8, minute=0, second=0, microsecond=0)
+        hora_fin = fecha_inicio.replace(hour=18, minute=0, second=0, microsecond=0)
+        if not (hora_inicio <= fecha_inicio < hora_fin):
+            raise ValorInvalido("fecha_hora_inicio", "Debe ser entre 8:00 AM y 6:00 PM")
 
-        # Validar no existe conflicto (misma fecha/hora/servicio)
+        # Validar no existe conflicto (rango de reserva solapado)
         if self.repo_reserva.existe_conflicto(
-            reserva_create.fecha.date(),
-            reserva_create.fecha.time(),
+            reserva_create.fecha_hora_inicio,
+            reserva_create.fecha_hora_fin,
             reserva_create.servicio_id
         ):
             raise ReservaYaExiste()
@@ -60,16 +62,15 @@ class ReservaService:
         reserva = Reserva(
             alumno_id=reserva_create.alumno_id,
             servicio_id=reserva_create.servicio_id,
-            fecha=reserva_create.fecha,
-            duracion_minutos=reserva_create.duracion_minutos,
+            fecha_hora_inicio=reserva_create.fecha_hora_inicio,
+            fecha_hora_fin=reserva_create.fecha_hora_fin,
             estado=EstadoReserva.CONFIRMADA,
-            notas=reserva_create.notas,
         )
 
         reserva = self.repo_reserva.create(reserva)
         return ReservaResponse.from_orm(reserva)
 
-    def obtener_reserva(self, reserva_id: int) -> ReservaResponse:
+    def obtener_reserva(self, reserva_id: uuid.UUID) -> ReservaResponse:
         """Obtener una reserva."""
         reserva = self.repo_reserva.get_by_id(reserva_id)
         if not reserva:
@@ -81,14 +82,14 @@ class ReservaService:
         reservas = self.repo_reserva.get_all(skip, limit)
         return [ReservaResponse.from_orm(r) for r in reservas]
 
-    def listar_por_alumno(self, alumno_id: int) -> List[ReservaResponse]:
+    def listar_por_alumno(self, alumno_id: uuid.UUID) -> List[ReservaResponse]:
         """Listar reservas de un alumno específico."""
         if not self.repo_alumno.get_by_id(alumno_id):
             raise AlumnoNotFound()
         reservas = self.repo_reserva.get_by_alumno(alumno_id)
         return [ReservaResponse.from_orm(r) for r in reservas]
 
-    def cancelar_reserva(self, reserva_id: int) -> ReservaResponse:
+    def cancelar_reserva(self, reserva_id: uuid.UUID) -> ReservaResponse:
         """Cancelar una reserva (validar 2 horas de anticipación)."""
         reserva = self.repo_reserva.get_by_id(reserva_id)
         if not reserva:
@@ -105,7 +106,7 @@ class ReservaService:
 
         return ReservaResponse.from_orm(reserva)
 
-    def reprogramar_reserva(self, reserva_id: int, nueva_fecha: datetime) -> ReservaResponse:
+    def reprogramar_reserva(self, reserva_id: uuid.UUID, nueva_fecha_hora_inicio: datetime, nueva_fecha_hora_fin: datetime) -> ReservaResponse:
         """Reprogramar una reserva (máximo 2 veces gratis)."""
         reserva = self.repo_reserva.get_by_id(reserva_id)
         if not reserva:
@@ -116,27 +117,33 @@ class ReservaService:
         if reprogramaciones >= 2:
             raise LimitReprogramacionesExcedido()
 
-        # Validar nueva fecha
-        if nueva_fecha < datetime.now(nueva_fecha.tzinfo):
-            raise ValorInvalido("nueva_fecha", "La fecha no puede ser en el pasado")
+        # Validar nueva fecha en el futuro
+        ahora = datetime.now(nueva_fecha_hora_inicio.tzinfo) if nueva_fecha_hora_inicio.tzinfo else datetime.now()
+        if nueva_fecha_hora_inicio.replace(tzinfo=None) < ahora.replace(tzinfo=None):
+            raise ValorInvalido("nueva_fecha_hora_inicio", "La fecha no puede ser en el pasado")
+
+        # Validar que fin es posterior a inicio
+        if nueva_fecha_hora_fin <= nueva_fecha_hora_inicio:
+            raise ValorInvalido("nueva_fecha_hora_fin", "La hora de fin debe ser posterior a la de inicio")
 
         # Validar no existe conflicto
         if self.repo_reserva.existe_conflicto(
-            nueva_fecha.date(),
-            nueva_fecha.time(),
+            nueva_fecha_hora_inicio,
+            nueva_fecha_hora_fin,
             reserva.servicio_id
         ):
             raise ReservaYaExiste()
 
         # Actualizar
-        reserva.fecha = nueva_fecha
+        reserva.fecha_hora_inicio = nueva_fecha_hora_inicio
+        reserva.fecha_hora_fin = nueva_fecha_hora_fin
         reserva.estado = EstadoReserva.REPROGRAMADA
         self.db.commit()
         self.db.refresh(reserva)
 
         return ReservaResponse.from_orm(reserva)
 
-    def actualizar_reserva(self, reserva_id: int, reserva_update: ReservaUpdate) -> ReservaResponse:
+    def actualizar_reserva(self, reserva_id: uuid.UUID, reserva_update: ReservaUpdate) -> ReservaResponse:
         """Actualizar notas u otros campos (no fecha/estado)."""
         reserva = self.repo_reserva.get_by_id(reserva_id)
         if not reserva:

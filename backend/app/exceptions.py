@@ -51,3 +51,21 @@ class ValorInvalido(AcademiaException):
     """Valor inválido en validación de negocio."""
     def __init__(self, field: str, reason: str):
         super().__init__(f"Valor inválido en {field}: {reason}", 400)
+
+
+class AdministradorNotFound(AcademiaException):
+    """Administrador no encontrado."""
+    def __init__(self):
+        super().__init__("Administrador no encontrado", 404)
+
+
+class CredencialesIncorrectas(AcademiaException):
+    """Credenciales de autenticación incorrectas."""
+    def __init__(self):
+        super().__init__("Credenciales incorrectas", 401)
+
+
+class AdminYaExiste(AcademiaException):
+    """Ya existe un administrador con ese email."""
+    def __init__(self):
+        super().__init__("Ya existe un administrador con este email", 409)
