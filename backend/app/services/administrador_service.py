@@ -3,12 +3,13 @@ Servicio de lógica de negocio para Administradores.
 """
 
 from typing import Optional, List
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 from app.models import Administrador
 from app.schemas import AdminCreate, AdminUpdate, AdminResponse
 from app.repositories.administrador_repository import AdministradorRepository
 from app.exceptions import AdministradorNotFound, CredencialesIncorrectas, AdminYaExiste, ValorInvalido
-from app.utils.auth import verify_password, get_password_hash
+from app.utils.auth import verify_password
 
 
 class AdministradorService:
@@ -41,14 +42,21 @@ class AdministradorService:
             telefono=admin_create.telefono,
             password_hash=password_hash,
         )
-
-        admin = self.repo.create(admin)
+        try:
+            admin = self.repo.create(admin)
+            self.db.commit()
+            self.db.refresh(admin)
+        except IntegrityError as exc:
+            self.db.rollback()
+            raise AdminYaExiste() from exc
         return AdminResponse.model_validate(admin)
 
     def obtener_admin(self, admin_id) -> AdminResponse:
         """Obtener un administrador por ID."""
         admin = self.repo.get_by_id(admin_id)
         if not admin:
+            raise AdministradorNotFound()
+        if not admin.activo:
             raise AdministradorNotFound()
         return AdminResponse.model_validate(admin)
 
@@ -70,6 +78,8 @@ class AdministradorService:
         update_data = admin_update.model_dump(exclude_unset=True)
         if update_data:
             updated = self.repo.update(admin_id, update_data)
+            self.db.commit()
+            self.db.refresh(updated)
             return AdminResponse.model_validate(updated)
         return AdminResponse.model_validate(admin)
 

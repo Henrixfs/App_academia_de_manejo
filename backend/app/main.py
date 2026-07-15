@@ -1,76 +1,145 @@
-"""
-Aplicación FastAPI principal.
-"""
+import logging
+import time
+import uuid
 
-from fastapi import FastAPI, Request, HTTPException
-from fastapi.middleware.cors import CORSMiddleware
+from fastapi import FastAPI, HTTPException, Request, status
+from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-import os
-from dotenv import load_dotenv
+from sqlalchemy import text
 
-# Cargar variables de entorno
-load_dotenv()
+from app.config import settings
+from app.database import SessionLocal
+from app.exceptions import AcademiaException
+from app.routers import admin, alumnos, auth, faltas, me, paquetes, reservas, servicios
 
-# Crear app
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
+logger = logging.getLogger("academia")
+
 app = FastAPI(
     title="Academia de Manejo San Cristóbal VIP",
-    description="API para gestión de reservas, alumnos y agente de IA conversacional.",
-    version="1.0.0",
-    docs_url="/docs",
-    openapi_url="/openapi.json",
+    description="API para gestión de reservas, alumnos y administración.",
+    version="1.1.0",
+    docs_url="/docs" if settings.ENVIRONMENT != "production" else None,
+    openapi_url="/openapi.json" if settings.ENVIRONMENT != "production" else None,
 )
-
-# Disable trailing slash redirects
 app.router.redirect_slashes = False
-
-# CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:3000",
-        "http://127.0.0.1:3000",
-        "http://192.168.48.1:3000",
-    ],
+    allow_origins=settings.cors_origins,
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Authorization", "Content-Type", "X-Request-ID"],
 )
 
-# Importar routers
-from app.routers import alumnos, reservas, paquetes, faltas, servicios, auth, admin
-from app.exceptions import AcademiaException
-
-# Registrar routers
+app.include_router(auth.router)
+app.include_router(me.router)
 app.include_router(alumnos.router)
 app.include_router(reservas.router)
 app.include_router(paquetes.router)
 app.include_router(faltas.router)
 app.include_router(servicios.router)
-app.include_router(auth.router)
+app.include_router(servicios.admin_router)
 app.include_router(admin.router)
 
-# Manejo global de excepciones
+
+@app.middleware("http")
+async def request_context(request: Request, call_next):
+    request_id = request.headers.get("x-request-id") or str(uuid.uuid4())
+    request.state.request_id = request_id
+    started = time.perf_counter()
+    response = await call_next(request)
+    response.headers["X-Request-ID"] = request_id
+    elapsed_ms = round((time.perf_counter() - started) * 1000, 2)
+    logger.info(
+        "request method=%s path=%s status=%s duration_ms=%s request_id=%s",
+        request.method,
+        request.url.path,
+        response.status_code,
+        elapsed_ms,
+        request_id,
+    )
+    return response
+
+
+def error_payload(request: Request, code: str, message: str, field: str | None = None) -> dict[str, object]:
+    payload: dict[str, object] = {
+        "code": code,
+        "message": message,
+        "request_id": getattr(request.state, "request_id", None),
+    }
+    if field:
+        payload["field"] = field
+    return payload
+
+
 @app.exception_handler(AcademiaException)
-async def academia_exception_handler(request: Request, exc: AcademiaException):
+async def academia_exception_handler(request: Request, exc: AcademiaException) -> JSONResponse:
     return JSONResponse(
         status_code=exc.status_code,
-        content={"detail": exc.message},
+        content=error_payload(request, exc.code, exc.message, exc.field),
     )
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException) -> JSONResponse:
+    code = "HTTP_ERROR"
+    if exc.status_code == status.HTTP_401_UNAUTHORIZED:
+        code = "UNAUTHORIZED"
+    elif exc.status_code == status.HTTP_403_FORBIDDEN:
+        code = "FORBIDDEN"
+    elif exc.status_code == status.HTTP_429_TOO_MANY_REQUESTS:
+        code = "RATE_LIMITED"
+    return JSONResponse(
+        status_code=exc.status_code,
+        headers=exc.headers,
+        content=error_payload(request, code, str(exc.detail)),
+    )
+
 
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request: Request, exc: RequestValidationError):
+async def validation_exception_handler(request: Request, exc: RequestValidationError) -> JSONResponse:
     return JSONResponse(
-        status_code=400,
-        content={"detail": "Validación fallida", "errors": exc.errors()},
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content=jsonable_encoder({
+            **error_payload(request, "VALIDATION_ERROR", "Validación fallida"),
+            "errors": exc.errors(),
+        }),
     )
 
-# Health check
+
+@app.exception_handler(Exception)
+async def unexpected_exception_handler(request: Request, exc: Exception) -> JSONResponse:
+    logger.exception(
+        "unexpected_error path=%s request_id=%s",
+        request.url.path,
+        getattr(request.state, "request_id", None),
+        exc_info=exc,
+    )
+    return JSONResponse(
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        content=error_payload(request, "INTERNAL_ERROR", "Ocurrió un error interno"),
+    )
+
+
 @app.get("/health")
-async def health_check():
-    """Verificar que el servicio está activo."""
+async def health_check() -> dict[str, str]:
     return {"status": "ok", "service": "Academia de Manejo"}
+
+
+@app.get("/health/ready")
+async def readiness_check() -> JSONResponse:
+    try:
+        with SessionLocal() as db:
+            db.execute(text("SELECT 1"))
+        return JSONResponse({"status": "ready"})
+    except Exception:
+        return JSONResponse({"status": "unavailable"}, status_code=status.HTTP_503_SERVICE_UNAVAILABLE)
+
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+
+    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=settings.DEBUG)

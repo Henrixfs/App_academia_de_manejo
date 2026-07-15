@@ -1,24 +1,30 @@
 import { redirect } from "next/navigation"
 import { verifySession } from "@/lib/dal"
 import { getAlumnos } from "@/services/admin-alumnos.service"
+import { DataWarning } from "@/components/data-warning"
 import { AdminAlumnosClient } from "./alumnos-client"
 
-export default async function AdminAlumnosPage() {
+const AdminAlumnosPage = async (): Promise<React.ReactNode> => {
   const session = await verifySession()
 
   if (!session) {
     redirect("/login")
   }
 
-  
+  const alumnosResult = await Promise.allSettled([getAlumnos()])
+  const alumnos = alumnosResult[0].status === "fulfilled" ? alumnosResult[0].value : []
+  const warning = alumnosResult[0].status === "rejected"
+    ? alumnosResult[0].reason instanceof Error
+      ? alumnosResult[0].reason.message
+      : "No se pudieron cargar los alumnos"
+    : null
 
-  let alumnos: Awaited<ReturnType<typeof getAlumnos>> = []
-
-  try {
-    alumnos = await getAlumnos()
-  } catch (error) {
-    console.error("Error fetching alumnos:", error)
-  }
-
-  return <AdminAlumnosClient initialAlumnos={alumnos} />
+  return (
+    <div className="space-y-4">
+      <DataWarning message={warning} />
+      <AdminAlumnosClient initialAlumnos={alumnos} />
+    </div>
+  )
 }
+
+export default AdminAlumnosPage

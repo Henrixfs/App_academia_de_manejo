@@ -13,7 +13,7 @@ def test_listar_paquetes_endpoint():
     response = client.get("/api/paquetes/")
     assert response.status_code == 200
     data = response.json()
-    assert isinstance(data, list)
+    assert data == {"items": [], "total": 0, "page": 1, "page_size": 25}
 
 
 def test_obtener_paquete_endpoint():

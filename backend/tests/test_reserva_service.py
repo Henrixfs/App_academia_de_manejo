@@ -5,9 +5,12 @@ Tests para ReservaService.
 import pytest
 from sqlalchemy.orm import Session
 from datetime import datetime, timedelta
-from app.models import Alumno, Servicio
+from zoneinfo import ZoneInfo
+from app.models import Alumno, Servicio, Reserva
 from app.schemas import ReservaCreate
 from app.services.reserva_service import ReservaService
+from app.services.alumno_service import AlumnoService
+from app.services.servicio_service import ServicioService
 from app.exceptions import AlumnoNotFound, ServicioNotFound, ValorInvalido
 
 
@@ -41,11 +44,13 @@ def test_crear_reserva(db: Session):
 
     # Ahora crear la reserva
     service = ReservaService(db)
+    manana = datetime.now(ZoneInfo("America/Lima")) + timedelta(days=1)
+    inicio = manana.replace(hour=10, minute=0, second=0, microsecond=0)
     reserva_create = ReservaCreate(
         alumno_id=alumno.id,
         servicio_id=servicio.id,
-        fecha_hora_inicio=datetime.now() + timedelta(days=1),
-        fecha_hora_fin=datetime.now() + timedelta(days=1, hours=2)
+        fecha_hora_inicio=inicio,
+        fecha_hora_fin=inicio + timedelta(hours=2)
     )
 
     resultado = service.crear_reserva(reserva_create)

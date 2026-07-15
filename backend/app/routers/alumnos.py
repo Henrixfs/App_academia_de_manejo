@@ -1,59 +1,49 @@
-"""
-Rutas para gestion de Alumnos.
-"""
-
 import uuid
-from typing import List
-from fastapi import APIRouter, Depends, HTTPException, status
+
+from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from app.database import get_db
-from app.schemas import AlumnoCreate, AlumnoUpdate, AlumnoResponse
+from app.dependencies import CurrentUser, get_current_admin
+from app.schemas import AlumnoCreate, AlumnoPage, AlumnoResponse, AlumnoUpdate
 from app.services.alumno_service import AlumnoService
-from app.exceptions import AlumnoNotFound, ValorInvalido
-from app.dependencies import get_current_user
 
-router = APIRouter(prefix="/api/alumnos", tags=["Alumnos"])
+
+router = APIRouter(prefix="/api/admin/alumnos", tags=["Administración de alumnos"])
 
 
 @router.post("/", response_model=AlumnoResponse, status_code=status.HTTP_201_CREATED)
 def crear_alumno(
     alumno_create: AlumnoCreate,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
-):
-    """Crear un nuevo alumno. Requiere autenticación."""
-    try:
-        service = AlumnoService(db)
-        return service.crear_alumno(alumno_create)
-    except ValorInvalido as e:
-        raise HTTPException(status_code=e.status_code, detail=e.message)
+    current_user: CurrentUser = Depends(get_current_admin),
+) -> AlumnoResponse:
+    return AlumnoService(db).crear_alumno(alumno_create)
 
 
-@router.get("/", response_model=List[AlumnoResponse])
+@router.get("/", response_model=AlumnoPage)
 def listar_alumnos(
-    skip: int = 0,
-    limit: int = 100,
+    page: int = Query(1, ge=1),
+    page_size: int = Query(25, ge=1, le=100),
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
-):
-    """Listar todos los alumnos. Requiere autenticación."""
+    current_user: CurrentUser = Depends(get_current_admin),
+) -> AlumnoPage:
     service = AlumnoService(db)
-    return service.listar_alumnos(skip, limit)
+    return AlumnoPage(
+        items=service.listar_alumnos((page - 1) * page_size, page_size),
+        total=service.contar_alumnos(),
+        page=page,
+        page_size=page_size,
+    )
 
 
 @router.get("/{alumno_id}", response_model=AlumnoResponse)
 def obtener_alumno(
     alumno_id: uuid.UUID,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
-):
-    """Obtener un alumno por ID. Requiere autenticación."""
-    try:
-        service = AlumnoService(db)
-        return service.obtener_alumno(alumno_id)
-    except AlumnoNotFound as e:
-        raise HTTPException(status_code=e.status_code, detail=e.message)
+    current_user: CurrentUser = Depends(get_current_admin),
+) -> AlumnoResponse:
+    return AlumnoService(db).obtener_alumno(alumno_id)
 
 
 @router.put("/{alumno_id}", response_model=AlumnoResponse)
@@ -61,25 +51,15 @@ def actualizar_alumno(
     alumno_id: uuid.UUID,
     alumno_update: AlumnoUpdate,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
-):
-    """Actualizar un alumno. Requiere autenticación."""
-    try:
-        service = AlumnoService(db)
-        return service.actualizar_alumno(alumno_id, alumno_update)
-    except (AlumnoNotFound, ValorInvalido) as e:
-        raise HTTPException(status_code=e.status_code, detail=e.message)
+    current_user: CurrentUser = Depends(get_current_admin),
+) -> AlumnoResponse:
+    return AlumnoService(db).actualizar_alumno(alumno_id, alumno_update)
 
 
 @router.delete("/{alumno_id}", status_code=status.HTTP_204_NO_CONTENT)
 def eliminar_alumno(
     alumno_id: uuid.UUID,
     db: Session = Depends(get_db),
-    current_user: dict = Depends(get_current_user)
-):
-    """Eliminar un alumno. Requiere autenticación."""
-    try:
-        service = AlumnoService(db)
-        service.eliminar_alumno(alumno_id)
-    except AlumnoNotFound as e:
-        raise HTTPException(status_code=e.status_code, detail=e.message)
+    current_user: CurrentUser = Depends(get_current_admin),
+) -> None:
+    AlumnoService(db).eliminar_alumno(alumno_id)

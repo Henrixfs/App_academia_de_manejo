@@ -3,6 +3,7 @@ Tests para AlumnoService.
 """
 
 import pytest
+import uuid
 from sqlalchemy.orm import Session
 from app.models import Alumno
 from app.schemas import AlumnoCreate, AlumnoUpdate

@@ -1,4 +1,5 @@
 import Link from "next/link"
+import type { Metadata } from "next"
 import { redirect } from "next/navigation"
 import { Car, LogOut } from "lucide-react"
 
@@ -8,14 +9,20 @@ import { Button } from "@/components/ui/button"
 import { AdminNav } from "./_components/admin-nav"
 import { HeaderNavLink } from "./_components/header-nav"
 
-export default async function AdminLayout({
+export const metadata: Metadata = {
+  title: "Administración",
+  description: "Panel privado de gestión de la academia.",
+  robots: { index: false, follow: false },
+}
+
+const AdminLayout = async ({
   children,
 }: {
   children: React.ReactNode
-}) {
+}): Promise<React.ReactNode> => {
   const session = await verifySession()
 
-  if (!session) {
+  if (!session || session.rol !== "administrador") {
     redirect("/login")
   }
 
@@ -65,3 +72,5 @@ export default async function AdminLayout({
     </div>
   )
 }
+
+export default AdminLayout

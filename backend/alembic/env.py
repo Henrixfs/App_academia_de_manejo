@@ -6,10 +6,15 @@ La URL de la base de datos se lee desde DATABASE_URL (app.database), no del alem
 """
 
 import os
+import sys
 from logging.config import fileConfig
+from pathlib import Path
 
 from sqlalchemy import engine_from_config, pool
+from sqlalchemy.sql.sqltypes import Uuid
 from alembic import context
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 # Importar Base y DATABASE_URL desde la aplicación
 from app.database import Base, DATABASE_URL
@@ -31,6 +36,19 @@ if config.config_file_name is not None:
 
 # Metadata objetivo para autogenerate
 target_metadata = Base.metadata
+
+
+def compare_server_default(
+    context,
+    inspected_column,
+    metadata_column,
+    inspected_default,
+    metadata_default,
+    rendered_metadata_default,
+):
+    if isinstance(metadata_column.type, Uuid) and inspected_default and "uuid_generate_v4" in inspected_default:
+        return False
+    return None
 
 
 # ---------------------------------------------------------------------------
@@ -80,7 +98,7 @@ def run_migrations_online() -> None:
             connection=connection,
             target_metadata=target_metadata,
             compare_type=True,       # Detecta cambios de tipo en columnas
-            compare_server_default=True,  # Detecta cambios en server_default
+            compare_server_default=compare_server_default,
         )
 
         with context.begin_transaction():

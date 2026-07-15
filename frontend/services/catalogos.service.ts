@@ -1,4 +1,5 @@
-import { get } from '@/lib/api-client'
+import { getPublic } from '@/lib/api-client'
+import type { PaginatedResponse } from '@/lib/contracts'
 
 export interface Servicio {
   id: string
@@ -16,9 +17,11 @@ export interface Paquete {
 }
 
 export async function getServicios(): Promise<Servicio[]> {
-  return get<Servicio[]>('/api/servicios/')
+  const page = await getPublic<PaginatedResponse<Servicio>>('/api/servicios/?page_size=100')
+  return page.items
 }
 
 export async function getPaquetes(): Promise<Paquete[]> {
-  return get<Paquete[]>('/api/paquetes/')
+  const page = await getPublic<PaginatedResponse<Paquete>>('/api/paquetes/?page_size=100')
+  return page.items
 }

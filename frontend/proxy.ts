@@ -1,37 +1,22 @@
-import { NextRequest, NextResponse } from 'next/server'
-import { cookies } from 'next/headers'
+import type { NextRequest } from 'next/server'
+import { NextResponse } from 'next/server'
+
 import { decrypt } from './lib/session'
 
-const protectedRoutes = ['/admin']
-const authRoutes = ['/login']
 
-export default async function middleware(req: NextRequest) {
-  const path = req.nextUrl.pathname
-
-  if (path.startsWith('/api') || path.startsWith('/_next') || path.startsWith('/favicon')) {
-    return NextResponse.next()
-  }
-
-  const isProtectedRoute = protectedRoutes.some((route) => path.startsWith(route))
-  const isAuthRoute = authRoutes.includes(path)
-
-  const cookieStore = await cookies()
-  const sessionCookie = cookieStore.get('session')?.value
-  
+export const proxy = async (request: NextRequest): Promise<NextResponse> => {
+  const path = request.nextUrl.pathname
+  const sessionCookie = request.cookies.get('session')?.value
   const session = sessionCookie ? await decrypt(sessionCookie) : null
 
-  if (isProtectedRoute && !session) {
-    const loginUrl = new URL('/login', req.url)
+  if (path.startsWith('/admin') && (!session || session.rol !== 'administrador')) {
+    const loginUrl = new URL('/login', request.url)
     loginUrl.searchParams.set('redirect', path)
     return NextResponse.redirect(loginUrl)
   }
 
-  if (isAuthRoute && session) {
-    return NextResponse.redirect(new URL('/admin', req.url))
-  }
-
-  if (path === '/' && session) {
-    return NextResponse.redirect(new URL('/admin', req.url))
+  if (path.startsWith('/cuenta') && (!session || session.rol !== 'alumno')) {
+    return NextResponse.redirect(new URL('/login', request.url))
   }
 
   return NextResponse.next()

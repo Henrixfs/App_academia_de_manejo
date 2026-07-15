@@ -1,26 +1,8 @@
 import { get } from '@/lib/api-client'
+import type { AlumnoContract, PaginatedResponse, ReservaContract } from '@/lib/contracts'
 
-export interface AlumnoProfile {
-  id: string
-  nombres: string
-  apellidos: string
-  documento_identidad: string
-  telefono: string
-  email: string | null
-  fecha_registro: string
-}
-
-export interface Reserva {
-  id: string
-  alumno_id: string
-  servicio_id: string
-  matricula_paquete_id: string | null
-  fecha_hora_inicio: string
-  fecha_hora_fin: string
-  estado: string
-  estado_pago: string
-  fecha_creacion: string
-}
+export type AlumnoProfile = AlumnoContract
+export type Reserva = ReservaContract
 
 export interface Falta {
   id: string
@@ -32,14 +14,15 @@ export interface Falta {
   fecha_creacion: string
 }
 
-export async function getAlumnoProfile(alumnoId: string): Promise<AlumnoProfile> {
-  return get<AlumnoProfile>(`/api/alumnos/${alumnoId}`)
+export async function getAlumnoProfile(): Promise<AlumnoProfile> {
+  return get<AlumnoProfile>('/api/me')
 }
 
-export async function getAlumnoReservas(alumnoId: string): Promise<Reserva[]> {
-  return get<Reserva[]>(`/api/reservas/alumno/${alumnoId}`)
+export async function getAlumnoReservas(): Promise<Reserva[]> {
+  const page = await get<PaginatedResponse<Reserva>>('/api/me/reservas?page_size=100')
+  return page.items
 }
 
 export async function getReservaFaltas(reservaId: string): Promise<Falta[]> {
-  return get<Falta[]>(`/api/faltas/reserva/${reservaId}`)
+  return get<Falta[]>(`/api/me/reservas/${reservaId}/faltas`)
 }

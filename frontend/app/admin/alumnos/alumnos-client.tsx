@@ -11,7 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { post, put, del } from "@/lib/client-api-client"
+import { adminDelete, adminPost, adminPut } from "@/lib/admin-browser-client"
+import { ConfirmDialog, FeedbackMessage } from "@/components/feedback"
 
 interface Alumno {
   id: string
@@ -29,7 +30,6 @@ interface AlumnoFormData {
   documento_identidad: string
   telefono: string
   email: string
-  password?: string
 }
 
 interface AdminAlumnosClientProps {
@@ -38,20 +38,21 @@ interface AdminAlumnosClientProps {
 
 const ITEMS_PER_PAGE = 10
 
-export function AdminAlumnosClient({ initialAlumnos }: AdminAlumnosClientProps) {
+export const AdminAlumnosClient = ({ initialAlumnos }: AdminAlumnosClientProps): React.ReactNode => {
   const [alumnos, setAlumnos] = useState<Alumno[]>(initialAlumnos)
   const [searchQuery, setSearchQuery] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [editingAlumno, setEditingAlumno] = useState<Alumno | null>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
   const [formData, setFormData] = useState<AlumnoFormData>({
     nombres: "",
     apellidos: "",
     documento_identidad: "",
     telefono: "",
     email: "",
-    password: "",
   })
 
   const filteredAlumnos = alumnos.filter((alumno) => {
@@ -87,7 +88,6 @@ export function AdminAlumnosClient({ initialAlumnos }: AdminAlumnosClientProps) 
         documento_identidad: "",
         telefono: "",
         email: "",
-        password: "",
       })
     }
     setIsModalOpen(true)
@@ -100,10 +100,11 @@ export function AdminAlumnosClient({ initialAlumnos }: AdminAlumnosClientProps) 
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setErrorMessage(null)
     setIsLoading(true)
     try {
       if (editingAlumno) {
-        const updated = await put<Alumno>(`/api/alumnos/${editingAlumno.id}`, {
+        const updated = await adminPut<Alumno>(`alumnos/${editingAlumno.id}`, {
           nombres: formData.nombres,
           apellidos: formData.apellidos,
           telefono: formData.telefono,
@@ -111,68 +112,37 @@ export function AdminAlumnosClient({ initialAlumnos }: AdminAlumnosClientProps) 
         })
         setAlumnos(alumnos.map(a => a.id === editingAlumno.id ? updated : a))
       } else {
-        // Si tiene contraseña usamos /api/auth/register (crea alumno con password)
-        // Si no tiene contraseña usamos /api/alumnos/ directamente
-        if (formData.password) {
-          // Hacemos el register directamente al backend (no necesita auth)
-          const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
-          const registerRes = await fetch(`${API_URL}/api/auth/register`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              nombres: formData.nombres,
-              apellidos: formData.apellidos,
-              documento_identidad: formData.documento_identidad,
-              telefono: formData.telefono,
-              email: formData.email,
-              password: formData.password,
-            }),
-          })
-          if (!registerRes.ok) {
-            const err = await registerRes.json().catch(() => ({ detail: 'Error al registrar' }))
-            throw new Error(err.detail || 'Error al registrar alumno')
-          }
-          // Recargar la lista de alumnos con el token del admin actual
-          const adminToken = document.cookie.split('; ').find(c => c.startsWith('auth_token='))?.split('=')[1]
-          const alumnosRes = await fetch(`${API_URL}/api/alumnos/`, {
-            headers: adminToken ? { 'Authorization': `Bearer ${adminToken}` } : {},
-          })
-          if (alumnosRes.ok) {
-            const allAlumnos = await alumnosRes.json() as Alumno[]
-            setAlumnos(allAlumnos)
-          }
-        } else {
-          const newAlumno = await post<Alumno>('/api/alumnos/', {
-            nombres: formData.nombres,
-            apellidos: formData.apellidos,
-            documento_identidad: formData.documento_identidad,
-            telefono: formData.telefono,
-            email: formData.email || undefined,
-          })
-          setAlumnos(prev => [newAlumno, ...prev])
-        }
+        const newAlumno = await adminPost<Alumno>('alumnos', {
+          nombres: formData.nombres,
+          apellidos: formData.apellidos,
+          documento_identidad: formData.documento_identidad,
+          telefono: formData.telefono,
+          email: formData.email || undefined,
+        })
+        setAlumnos(prev => [newAlumno, ...prev])
       }
       handleCloseModal()
     } catch (error) {
-      console.error("Error al guardar alumno:", error)
-      alert(error instanceof Error ? error.message : "Error al guardar el alumno")
+      setErrorMessage(error instanceof Error ? error.message : "Error al guardar el alumno")
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (confirm("¿Estás seguro de eliminar este alumno?")) {
-      setIsLoading(true)
-      try {
-        await del(`/api/alumnos/${id}`)
-        setAlumnos(alumnos.filter(a => a.id !== id))
-      } catch (error) {
-        console.error("Error al eliminar alumno:", error)
-        alert(error instanceof Error ? error.message : "Error al eliminar el alumno")
-      } finally {
-        setIsLoading(false)
-      }
+  const handleDelete = (id: string): void => setDeleteTarget(id)
+
+  const confirmDelete = async (): Promise<void> => {
+    if (!deleteTarget) return
+    setErrorMessage(null)
+    setIsLoading(true)
+    try {
+      await adminDelete<void>(`alumnos/${deleteTarget}`)
+      setAlumnos((current) => current.filter((alumno) => alumno.id !== deleteTarget))
+      setDeleteTarget(null)
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Error al eliminar el alumno")
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -196,6 +166,8 @@ export function AdminAlumnosClient({ initialAlumnos }: AdminAlumnosClientProps) 
           Nuevo Alumno
         </Button>
       </div>
+
+      <FeedbackMessage message={errorMessage} />
 
       <Card className="mb-6 border-border/60 shadow-admin-card bg-gradient-to-r from-card to-muted/20">
         <CardContent className="pt-6">
@@ -238,7 +210,7 @@ export function AdminAlumnosClient({ initialAlumnos }: AdminAlumnosClientProps) 
                   </td>
                 </tr>
               ) : (
-                paginatedAlumnos.map((alumno, index) => (
+                paginatedAlumnos.map((alumno) => (
                   <tr key={alumno.id} className="table-row-hover">
                     <td className="py-3 px-4 text-muted-foreground font-mono text-xs">
                       AL-{alumno.id.slice(0, 6).toUpperCase()}
@@ -290,7 +262,7 @@ export function AdminAlumnosClient({ initialAlumnos }: AdminAlumnosClientProps) 
               {searchQuery ? "No se encontraron resultados" : "No hay alumnos registrados"}
             </div>
           ) : (
-            paginatedAlumnos.map((alumno, index) => (
+            paginatedAlumnos.map((alumno) => (
               <div key={alumno.id} className="p-4 flex flex-col gap-3">
                 <div className="flex justify-between items-start">
                   <div className="flex items-center gap-3">
@@ -415,8 +387,13 @@ export function AdminAlumnosClient({ initialAlumnos }: AdminAlumnosClientProps) 
                 id="documento_identidad"
                 value={formData.documento_identidad}
                 onChange={(e) => setFormData({ ...formData, documento_identidad: e.target.value })}
-                required
+                required={!editingAlumno}
+                disabled={!!editingAlumno}
+                className={editingAlumno ? "bg-muted text-muted-foreground cursor-not-allowed font-medium" : ""}
               />
+              {editingAlumno && (
+                <p className="text-[11px] text-muted-foreground">El DNI no se puede modificar.</p>
+              )}
             </div>
             <div className="space-y-2">
               <label htmlFor="telefono" className="text-sm font-medium">
@@ -431,30 +408,15 @@ export function AdminAlumnosClient({ initialAlumnos }: AdminAlumnosClientProps) 
             </div>
             <div className="space-y-2">
               <label htmlFor="email" className="text-sm font-medium">
-                Email
+                Email <span className="text-muted-foreground font-normal">(Opcional)</span>
               </label>
               <Input
                 id="email"
                 type="email"
                 value={formData.email}
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                required
               />
             </div>
-            {!editingAlumno && (
-              <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium">
-                  Contraseña
-                </label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  required={!editingAlumno}
-                />
-              </div>
-            )}
             <div className="flex justify-end gap-3 pt-4">
               <Button type="button" variant="outline" onClick={handleCloseModal} disabled={isLoading}>
                 Cancelar
@@ -473,6 +435,14 @@ export function AdminAlumnosClient({ initialAlumnos }: AdminAlumnosClientProps) 
           </form>
         </DialogContent>
       </Dialog>
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        title="Eliminar alumno"
+        description="Esta acción no se puede deshacer. El alumno se eliminará si no tiene registros relacionados."
+        loading={isLoading}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={confirmDelete}
+      />
     </div>
   )
 }

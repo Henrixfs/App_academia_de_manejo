@@ -1,30 +1,25 @@
-"""
-Servicio para Paquetes de formación.
-"""
-
+import uuid
 from typing import List
+
 from sqlalchemy.orm import Session
-from app.models import Paquete
-from app.schemas import PaqueteResponse
-from app.repositories.paquete_repository import PaqueteRepository
+
 from app.exceptions import ServicioNotFound
+from app.repositories.paquete_repository import PaqueteRepository
+from app.schemas import PaqueteResponse
 
 
 class PaqueteService:
-    """Servicio para Paquetes."""
-
     def __init__(self, db: Session):
-        self.db = db
         self.repo = PaqueteRepository(db)
 
-    def listar_paquetes(self) -> List[PaqueteResponse]:
-        """Listar todos los paquetes disponibles."""
-        paquetes = self.repo.get_all()
-        return [PaqueteResponse.from_orm(p) for p in paquetes]
+    def listar_paquetes(self, skip: int = 0, limit: int = 100) -> List[PaqueteResponse]:
+        return [PaqueteResponse.model_validate(item) for item in self.repo.get_all(skip, limit)]
 
-    def obtener_paquete(self, paquete_id: int) -> PaqueteResponse:
-        """Obtener un paquete."""
+    def contar_paquetes(self) -> int:
+        return self.repo.count()
+
+    def obtener_paquete(self, paquete_id: uuid.UUID) -> PaqueteResponse:
         paquete = self.repo.get_by_id(paquete_id)
         if not paquete:
             raise ServicioNotFound()
-        return PaqueteResponse.from_orm(paquete)
+        return PaqueteResponse.model_validate(paquete)

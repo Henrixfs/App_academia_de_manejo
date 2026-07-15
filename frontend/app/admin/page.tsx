@@ -1,37 +1,41 @@
 import { redirect } from "next/navigation"
-import { Users, Calendar, CheckCircle, Clock, ArrowRight } from "lucide-react"
+import { Users, Calendar, CheckCircle, Clock, ArrowRight, type LucideIcon } from "lucide-react"
 
 import { verifySession } from "@/lib/dal"
 import { getAlumnos } from "@/services/admin-alumnos.service"
 import { getReservas, getServicios } from "@/services/admin-reservas.service"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
+import { DataWarning } from "@/components/data-warning"
+import { contarReservasRegistradasHoy } from "@/services/admin-dashboard.service"
 import Link from "next/link"
 
-export default async function AdminPage() {
+const AdminPage = async (): Promise<React.ReactNode> => {
   const session = await verifySession()
 
   if (!session) {
     redirect("/login")
   }
 
-  let alumnos: Awaited<ReturnType<typeof getAlumnos>> = []
-  let reservas: Awaited<ReturnType<typeof getReservas>> = []
-  let servicios: Awaited<ReturnType<typeof getServicios>> = []
-
-  try {
-    alumnos = await getAlumnos()
-    reservas = await getReservas()
-    servicios = await getServicios()
-  } catch (error) {
-    console.error("Error fetching dashboard data:", error)
-  }
+  const [alumnosResult, reservasResult, serviciosResult] = await Promise.allSettled([
+    getAlumnos(),
+    getReservas(),
+    getServicios(),
+  ])
+  const alumnos = alumnosResult.status === "fulfilled" ? alumnosResult.value : []
+  const reservas = reservasResult.status === "fulfilled" ? reservasResult.value : []
+  const servicios = serviciosResult.status === "fulfilled" ? serviciosResult.value : []
+  const dataError = [alumnosResult, reservasResult, serviciosResult].find((result) => result.status === "rejected")
+  const warning = dataError?.status === "rejected"
+    ? dataError.reason instanceof Error
+      ? dataError.reason.message
+      : "No se pudieron cargar los datos del panel"
+    : null
 
   const alumnoMap = new Map(alumnos.map(a => [a.id, a]))
   const servicioMap = new Map(servicios.map(s => [s.id, s]))
 
-  const today = new Date().toISOString().split("T")[0]
-  const reservasHoy = reservas.filter((r) => r.fecha_hora_inicio.startsWith(today))
+  const reservasHoy = contarReservasRegistradasHoy(reservas)
   const reservasConfirmadas = reservas.filter((r) => r.estado === "confirmada").length
   const recentReservas = [...reservas].sort((a, b) =>
     new Date(b.fecha_hora_inicio).getTime() - new Date(a.fecha_hora_inicio).getTime()
@@ -47,6 +51,8 @@ export default async function AdminPage() {
         <p className="text-muted-foreground">Resumen de la actividad de la academia</p>
       </div>
 
+      <DataWarning message={warning} />
+
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Alumnos"
@@ -59,8 +65,8 @@ export default async function AdminPage() {
         />
         <StatCard
           title="Reservas Hoy"
-          value={reservasHoy.length}
-          subtitle="Clases programadas"
+          value={reservasHoy}
+          subtitle="Registradas hoy"
           icon={Calendar}
           gradient="stat-card-gradient-reservas"
           iconClass="icon-circle-accent"
@@ -187,7 +193,7 @@ export default async function AdminPage() {
   )
 }
 
-function StatCard({
+const StatCard = ({
   title,
   value,
   subtitle,
@@ -199,11 +205,11 @@ function StatCard({
   title: string
   value: number
   subtitle: string
-  icon: any
+  icon: LucideIcon
   gradient: string
   iconClass: string
   href: string
-}) {
+}): React.ReactNode => {
   return (
     <Link href={href} className="block">
       <Card className={`${gradient} border-border/60 shadow-admin-stat card-hover-effect overflow-hidden`}>
@@ -224,7 +230,7 @@ function StatCard({
   )
 }
 
-function StatusBadge({ estado }: { estado: string }) {
+const StatusBadge = ({ estado }: { estado: string }): React.ReactNode => {
   const config: Record<string, { className: string; label: string }> = {
     pendiente_confirmacion: { className: "badge-warning", label: "Pendiente" },
     confirmada: { className: "badge-info", label: "Confirmada" },
@@ -238,3 +244,5 @@ function StatusBadge({ estado }: { estado: string }) {
 
   return <span className={`badge-modern ${className} text-[10px]`}>{label}</span>
 }
+
+export default AdminPage

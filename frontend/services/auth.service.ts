@@ -1,4 +1,6 @@
-const API_BASE_URL = process.env.API_URL || 'http://localhost:8000'
+import 'server-only'
+
+const API_BASE_URL = process.env.BACKEND_URL || process.env.API_URL || 'http://localhost:8000'
 
 export interface LoginRequest {
   username: string
@@ -14,6 +16,18 @@ export interface RegisterRequest {
   password: string
 }
 
+export interface InitialAdminSetupRequest {
+  email: string
+  nombres: string
+  apellidos: string
+  telefono?: string
+  password: string
+}
+
+export interface InitialSetupStatus {
+  setup_required: boolean
+}
+
 export interface User {
   id: string
   email: string
@@ -25,71 +39,61 @@ export interface User {
 export interface LoginResponse {
   access_token: string
   token_type: string
+  expires_in: number
   user: User
 }
 
-export async function login(data: LoginRequest): Promise<LoginResponse> {
-  const loginResponse = await fetch(`${API_BASE_URL}/api/auth/login`, {
+interface TokenResponse {
+  access_token: string
+  token_type: string
+  expires_in: number
+}
+
+interface ApiErrorResponse {
+  message?: string
+  detail?: string
+}
+
+const responseErrorMessage = async (response: Response, fallback: string): Promise<string> => {
+  const error = await response.json().catch(() => ({})) as ApiErrorResponse
+  return error.message || error.detail || fallback
+}
+
+const requestToken = async <T>(path: string, data: T, fallback: string): Promise<TokenResponse> => {
+  const response = await fetch(`${API_BASE_URL}${path}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data),
+    cache: 'no-store',
   })
-
-  if (!loginResponse.ok) {
-    const error = await loginResponse.json().catch(() => ({ detail: 'Login failed' }))
-    throw new Error(error.detail || 'Login failed')
-  }
-
-  const tokenData = await loginResponse.json()
-
-  const userResponse = await fetch(`${API_BASE_URL}/api/auth/me`, {
-    headers: {
-      'Authorization': `Bearer ${tokenData.access_token}`
-    }
-  })
-
-  if (!userResponse.ok) {
-    throw new Error('Failed to get user info')
-  }
-
-  const user = await userResponse.json()
-
-  return {
-    access_token: tokenData.access_token,
-    token_type: tokenData.token_type,
-    user: user
-  }
+  if (!response.ok) throw new Error(await responseErrorMessage(response, fallback))
+  return response.json() as Promise<TokenResponse>
 }
 
-export async function register(data: RegisterRequest): Promise<LoginResponse> {
-  const registerResponse = await fetch(`${API_BASE_URL}/api/auth/register`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data),
-  })
-
-  if (!registerResponse.ok) {
-    const error = await registerResponse.json().catch(() => ({ detail: 'Registration failed' }))
-    throw new Error(error.detail || 'Registration failed')
-  }
-
-  const tokenData = await registerResponse.json()
-
+const authenticateWithToken = async (tokenData: TokenResponse): Promise<LoginResponse> => {
   const userResponse = await fetch(`${API_BASE_URL}/api/auth/me`, {
-    headers: {
-      'Authorization': `Bearer ${tokenData.access_token}`
-    }
+    headers: { Authorization: `Bearer ${tokenData.access_token}` },
+    cache: 'no-store',
   })
-
-  if (!userResponse.ok) {
-    throw new Error('Failed to get user info')
-  }
-
-  const user = await userResponse.json()
-
-  return {
-    access_token: tokenData.access_token,
-    token_type: tokenData.token_type,
-    user: user
-  }
+  if (!userResponse.ok) throw new Error('No se pudo obtener el perfil del usuario')
+  const user = await userResponse.json() as User
+  return { ...tokenData, user }
 }
+
+export const login = async (data: LoginRequest): Promise<LoginResponse> => (
+  authenticateWithToken(await requestToken('/api/auth/login', data, 'Error al iniciar sesión'))
+)
+
+export const register = async (data: RegisterRequest): Promise<LoginResponse> => (
+  authenticateWithToken(await requestToken('/api/auth/register', data, 'Error al registrar usuario'))
+)
+
+export const getInitialSetupStatus = async (): Promise<InitialSetupStatus> => {
+  const response = await fetch(`${API_BASE_URL}/api/auth/setup/status`, { cache: 'no-store' })
+  if (!response.ok) throw new Error(await responseErrorMessage(response, 'No se pudo comprobar la configuración inicial'))
+  return response.json() as Promise<InitialSetupStatus>
+}
+
+export const setupInitialAdmin = async (data: InitialAdminSetupRequest): Promise<LoginResponse> => (
+  authenticateWithToken(await requestToken('/api/auth/setup/administrator', data, 'No se pudo crear el administrador inicial'))
+)

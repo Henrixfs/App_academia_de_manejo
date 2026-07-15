@@ -1,15 +1,21 @@
 import type { Metadata } from 'next';
-import { Arvo, Inter } from 'next/font/google';
 import './globals.css';
 
 import { ThemeProvider } from '@/components/providers/theme-theme';
 
-const arvo = Arvo({ variable: '--font-arvo', subsets: ['latin'], weight: ['400', '700'] });
-const inter = Inter({ variable: '--font-inter', subsets: ['latin'] });
-
 export const metadata: Metadata = {
-  title: 'Academia de Manejo',
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'),
+  title: {
+    default: 'Academia de Manejo San Cristóbal VIP',
+    template: '%s | San Cristóbal VIP',
+  },
   description: 'Aprende a manejar con los mejores instructores. Clases personalizadas para todas las edades.',
+  openGraph: {
+    title: 'Academia de Manejo San Cristóbal VIP',
+    description: 'Formación de conductores seguros en Ayacucho.',
+    locale: 'es_PE',
+    type: 'website',
+  },
 };
 
 export default function RootLayout({
@@ -18,7 +24,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="es" className={`${arvo.variable} ${inter.variable} h-full antialiased`} suppressHydrationWarning>
+    <html lang="es" className="h-full antialiased" suppressHydrationWarning>
       <body className={`min-h-full flex flex-col antialiased`} suppressHydrationWarning>
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
           {children}

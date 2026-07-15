@@ -3,8 +3,10 @@ Tests para FaltaService.
 """
 
 import pytest
+import uuid
+from datetime import datetime, timedelta
 from sqlalchemy.orm import Session
-from app.models import Alumno, Servicio, Reserva
+from app.models import Alumno, Servicio, Reserva, Falta
 from app.schemas import FaltaCreate
 from app.services.falta_service import FaltaService
 from app.exceptions import ReservaNotFound, ValorInvalido
@@ -50,14 +52,14 @@ def test_registrar_falta(db: Session):
     service = FaltaService(db)
     falta_create = FaltaCreate(
         reserva_id=reserva.id,
-        tipo="Leve",
+        tipo_falta="Leve",
         descripcion="No usó el espejo al cambiar de carril"
     )
 
     resultado = service.registrar_falta(falta_create)
 
     assert resultado.reserva_id == reserva.id
-    assert resultado.tipo == "Leve"
+    assert resultado.tipo_falta == "Leve"
     assert resultado.id is not None
 
 
@@ -100,13 +102,13 @@ def test_listar_faltas_por_reserva(db: Session):
     # Crear algunas faltas
     falta_repo.create(Falta(
         reserva_id=reserva.id,
-        tipo="Leve",
+        tipo_falta="Leve",
         descripcion="No usó el espejo al cambiar de carril"
     ))
 
     falta_repo.create(Falta(
         reserva_id=reserva.id,
-        tipo="Grave",
+        tipo_falta="Grave",
         descripcion="No respetó la señal de pare"
     ))
 
@@ -115,8 +117,8 @@ def test_listar_faltas_por_reserva(db: Session):
     faltas = service.listar_faltas_por_reserva(reserva.id)
 
     assert len(faltas) == 2
-    assert any(f.tipo == "Leve" for f in faltas)
-    assert any(f.tipo == "Grave" for f in faltas)
+    assert any(f.tipo_falta == "Leve" for f in faltas)
+    assert any(f.tipo_falta == "Grave" for f in faltas)
 
 
 def test_registrar_falta_tipo_invalido(db: Session):
@@ -155,14 +157,12 @@ def test_registrar_falta_tipo_invalido(db: Session):
 
     # Intentar registrar falta con tipo inválido
     service = FaltaService(db)
-    falta_create = FaltaCreate(
-        reserva_id=reserva.id,
-        tipo="Muy Grave",  # Tipo inválido
-        descripcion="Algunas observaciones"
-    )
-
-    with pytest.raises(ValueError):  # Should raise ValorInvalido
-        service.registrar_falta(falta_create)
+    with pytest.raises(ValueError):
+        FaltaCreate(
+            reserva_id=reserva.id,
+            tipo_falta="Muy Grave",
+            descripcion="Algunas observaciones"
+        )
 
 
 def test_registrar_falta_reserva_no_existe(db: Session):
@@ -170,7 +170,7 @@ def test_registrar_falta_reserva_no_existe(db: Session):
     service = FaltaService(db)
     falta_create = FaltaCreate(
         reserva_id=uuid.uuid4(),  # ID que no existe
-        tipo="Leve",
+        tipo_falta="Leve",
         descripcion="Algunas observaciones"
     )
 

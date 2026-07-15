@@ -36,7 +36,7 @@ class AlumnoRepository(BaseRepository[Alumno]):
         """Obtener alumno por teléfono."""
         return self.db.query(Alumno).filter(Alumno.telefono == telefono).first()
 
-    def exists_email(self, email: str) -> bool:
+    def exists_email(self, email: Optional[str]) -> bool:
         """Verificar si email ya existe."""
         return self.db.query(Alumno).filter(Alumno.email == email).first() is not None
 
@@ -46,5 +46,5 @@ class AlumnoRepository(BaseRepository[Alumno]):
         if not alumno:
             return False
         alumno.password_hash = password_hash
-        self.db.commit()
+        self.db.flush()
         return True

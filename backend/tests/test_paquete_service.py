@@ -3,6 +3,7 @@ Tests para PaqueteService.
 """
 
 import pytest
+import uuid
 from sqlalchemy.orm import Session
 from app.models import Paquete
 from app.services.paquete_service import PaqueteService

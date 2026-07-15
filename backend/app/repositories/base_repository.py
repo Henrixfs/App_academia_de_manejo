@@ -4,7 +4,7 @@ Base repository con operaciones CRUD genéricas.
 
 from typing import TypeVar, Generic, Type, List, Optional, Any
 from sqlalchemy.orm import Session
-from sqlalchemy import select
+from sqlalchemy import func
 
 T = TypeVar('T')
 
@@ -19,7 +19,7 @@ class BaseRepository(Generic[T]):
     def create(self, obj: T) -> T:
         """Crear un nuevo objeto."""
         self.db.add(obj)
-        self.db.commit()
+        self.db.flush()
         self.db.refresh(obj)
         return obj
 
@@ -29,7 +29,10 @@ class BaseRepository(Generic[T]):
 
     def get_all(self, skip: int = 0, limit: int = 100) -> List[T]:
         """Listar todos (con paginación)."""
-        return self.db.query(self.model_class).offset(skip).limit(limit).all()
+        return self.db.query(self.model_class).order_by(self.model_class.id).offset(skip).limit(limit).all()
+
+    def count(self) -> int:
+        return self.db.query(func.count(self.model_class.id)).scalar() or 0
 
     def update(self, id: Any, obj_in: dict) -> Optional[T]:
         """Actualizar."""
@@ -38,7 +41,7 @@ class BaseRepository(Generic[T]):
             return None
         for key, value in obj_in.items():
             setattr(obj, key, value)
-        self.db.commit()
+        self.db.flush()
         self.db.refresh(obj)
         return obj
 
@@ -48,5 +51,5 @@ class BaseRepository(Generic[T]):
         if not obj:
             return False
         self.db.delete(obj)
-        self.db.commit()
+        self.db.flush()
         return True

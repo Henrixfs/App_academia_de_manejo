@@ -3,8 +3,8 @@ import { Shield, Clock, Award, Users, Star, MapPin, Phone, CheckCircle, FileText
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Input } from "@/components/ui/input"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { ContactForm } from "@/components/contact-form"
 
 function Hero() {
   return (
@@ -22,7 +22,7 @@ function Hero() {
             Centro de entrenamiento especializado en formación de conductores seguros y capacitados en Ayacucho.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 mt-4">
-<Button size="lg" className="bg-green-600 hover:bg-green-700" asChild>
+<Button size="lg" className="bg-green-700 hover:bg-green-800" asChild>
               <a href="https://wa.me/51992684562" target="_blank" rel="noopener noreferrer">
                 <svg className="size-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.203 5.076 4.642.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.189 6.93 3.207l.394-1.089a12.11 12.11 0 002.68-7.161l-.001-.001a12.11 12.11 0 00-2.68 7.161l.394 1.089c.51-.514 1.15-.983 1.85-1.384a9.87 9.87 0 011.511-5.26 9.87 9.87 0 00-1.511 5.26v.001c.015.28.022.565.022.849 0 2.333-.526 4.415-1.338 6.08-.148.302-.311.596-.492.88l.013.001.017.002.01.003.003.001.007.007.001.002a9.83 9.83 0 01.492.88 9.84 9.84 0 01-1.338 6.08 9.87 9.87 0 00-1.511 5.26 9.87 9.87 0 001.511-5.26l-.001-.001a9.86 9.86 0 001.51-5.26v.001c.015.28.022.565.022.849 0 2.333-.526 4.415-1.338 6.08-.148.302-.311.596-.492.88l.013.001.017.002.01.003.003.001.007.007.001.002a9.83 9.83 0 01.492.88 9.84 9.84 0 01-1.338 6.08 9.87 9.87 0 00-1.511 5.26 9.87 9.87 0 001.511-5.26l-.001-.001a9.86 9.86 0 001.51-5.26 9.86 9.86 0 00-1.51 5.26l.361.214 3.741-.982-.998 3.648.235.374a9.86 9.86 0 001.51 5.26 9.87 9.87 0 005.032 1.378l.361.214 3.741-.982-.998 3.648.235.374a9.86 9.86 0 001.51 5.26c-.297.149-1.758.867-2.03.967-.273.099-.471.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.203 5.076 4.642.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/>
@@ -182,8 +182,14 @@ function Services() {
                 </ul>
               </CardContent>
               <CardFooter>
-                <Button className="w-full" variant={service.popular ? "default" : "outline"}>
-                  Solicitar Información
+                <Button className="w-full" variant={service.popular ? "default" : "outline"} asChild>
+                  <a
+                    href={`https://wa.me/51992684562?text=${encodeURIComponent(`Hola, deseo información sobre ${service.title}.`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    Solicitar Información
+                  </a>
                 </Button>
               </CardFooter>
             </Card>
@@ -335,41 +341,7 @@ function Contact() {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form className="space-y-4">
-                <div className="grid sm:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label htmlFor="name" className="text-sm font-medium">
-                      Nombre
-                    </label>
-                    <Input id="name" placeholder="Tu nombre" />
-                  </div>
-                  <div className="space-y-2">
-                    <label htmlFor="phone" className="text-sm font-medium">
-                      Teléfono
-                    </label>
-                    <Input id="phone" type="tel" placeholder="+51 999 999 999" />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="email" className="text-sm font-medium">
-                    Email
-                  </label>
-                  <Input id="email" type="email" placeholder="tu@email.com" />
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="message" className="text-sm font-medium">
-                    Mensaje
-                  </label>
-                  <textarea
-                    id="message"
-                    className="min-h-[120px] w-full rounded-lg border border-input bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50 disabled:cursor-not-allowed disabled:opacity-50"
-                    placeholder="¿En qué podemos ayudarte?"
-                  />
-                </div>
-                <Button type="submit" className="w-full">
-                  Enviar Mensaje
-                </Button>
-              </form>
+              <ContactForm />
             </CardContent>
           </Card>
 
@@ -424,7 +396,7 @@ function Contact() {
                   <div>
                     <h3 className="font-semibold mb-1">WhatsApp</h3>
                     <p className="text-muted-foreground">Canal principal de reservas y consultas</p>
-                    <Button className="mt-2 bg-green-600 hover:bg-green-700" asChild>
+                    <Button className="mt-2 bg-green-700 hover:bg-green-800" asChild>
                       <a href="https://wa.me/51992684562" target="_blank" rel="noopener noreferrer">
                         Escribir por WhatsApp
                       </a>

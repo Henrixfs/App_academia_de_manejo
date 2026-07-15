@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Car, Users, Calendar, Settings, LayoutDashboard, ChevronRight } from "lucide-react"
+import { Car, Users, Calendar, Settings, LayoutDashboard, ChevronRight, type LucideIcon } from "lucide-react"
 
 interface AdminNavProps {
   session: {
@@ -12,7 +12,7 @@ interface AdminNavProps {
   }
 }
 
-export function AdminNav({ session }: AdminNavProps) {
+export const AdminNav = ({ session }: AdminNavProps): React.ReactNode => {
   const pathname = usePathname()
 
   const getInitials = (nombres: string, apellidos: string) => {
@@ -55,7 +55,14 @@ export function AdminNav({ session }: AdminNavProps) {
   )
 }
 
-function NavLink({ href, icon: Icon, label, pathname }: { href: string; icon: any; label: string; pathname: string }) {
+interface NavLinkProps {
+  href: string
+  icon: LucideIcon
+  label: string
+  pathname: string
+}
+
+const NavLink = ({ href, icon: Icon, label, pathname }: NavLinkProps): React.ReactNode => {
   const isActive = pathname === href
 
   return (

@@ -31,6 +31,9 @@ export function Navbar() {
           <Link href="#contacto" className="text-sm font-medium hover:text-primary">
             Contacto
           </Link>
+          <Button asChild size="sm">
+            <Link href="/login">Iniciar sesión</Link>
+          </Button>
           <ThemeToggle />
         </div>
 
@@ -40,6 +43,9 @@ export function Navbar() {
             variant="ghost"
             size="icon"
             onClick={() => setIsOpen(!isOpen)}
+            aria-label={isOpen ? "Cerrar menú de navegación" : "Abrir menú de navegación"}
+            aria-expanded={isOpen}
+            aria-controls="mobile-navigation"
           >
             {isOpen ? <X className="size-5" /> : <Menu className="size-5" />}
           </Button>
@@ -47,7 +53,7 @@ export function Navbar() {
       </nav>
 
       {isOpen && (
-        <div className="border-t md:hidden">
+        <div id="mobile-navigation" className="border-t md:hidden">
           <div className="container py-4 flex flex-col gap-4">
             <Link
               href="#servicios"
@@ -77,6 +83,11 @@ export function Navbar() {
             >
               Contacto
             </Link>
+            <Button asChild size="sm">
+              <Link href="/login" onClick={() => setIsOpen(false)}>
+                Iniciar sesión
+              </Link>
+            </Button>
           </div>
         </div>
       )}

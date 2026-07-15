@@ -18,9 +18,10 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     CheckConstraint,
+    UniqueConstraint,
+    Uuid,
     func,
 )
-from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 
 from .database import Base
@@ -51,21 +52,26 @@ class Alumno(Base):
     __tablename__ = "alumnos"
 
     id = Column(
-        UUID(as_uuid=True),
+        Uuid(as_uuid=True),
         primary_key=True,
         default=uuid.uuid4,
-        index=True,
     )
     nombres = Column(String(100), nullable=False)
     apellidos = Column(String(100), nullable=False)
-    documento_identidad = Column(String(20), nullable=False, unique=True, index=True)
+    documento_identidad = Column(String(20), nullable=False)
     telefono = Column(String(20), nullable=False)
-    email = Column(String(100), nullable=True, unique=True, index=True)
+    email = Column(String(100), nullable=True)
     password_hash = Column(String(255), nullable=True)
     fecha_registro = Column(
         DateTime(timezone=True),
         server_default=func.now(),
         nullable=False,
+    )
+
+    __table_args__ = (
+        UniqueConstraint("documento_identidad", name="uq_alumnos_doc_id"),
+        UniqueConstraint("email", name="uq_alumnos_email"),
+        Index("idx_alumnos_doc_id", "documento_identidad", unique=True),
     )
 
     # Relaciones
@@ -92,7 +98,7 @@ class Servicio(Base):
 
     __tablename__ = "servicios"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    id = Column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     nombre = Column(String(100), nullable=False, unique=True)
     descripcion = Column(Text, nullable=False)
     tarifa = Column(Numeric(10, 2), nullable=False)
@@ -119,7 +125,7 @@ class Paquete(Base):
 
     __tablename__ = "paquetes"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    id = Column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     nombre = Column(String(100), nullable=False, unique=True)
     descripcion = Column(Text, nullable=False)
     precio_sugerido = Column(Numeric(10, 2), nullable=True)
@@ -144,14 +150,14 @@ class MatriculaPaquete(Base):
 
     __tablename__ = "matricula_paquetes"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    id = Column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     alumno_id = Column(
-        UUID(as_uuid=True),
+        Uuid(as_uuid=True),
         ForeignKey("alumnos.id", ondelete="RESTRICT"),
         nullable=False,
     )
     paquete_id = Column(
-        UUID(as_uuid=True),
+        Uuid(as_uuid=True),
         ForeignKey("paquetes.id", ondelete="RESTRICT"),
         nullable=False,
     )
@@ -159,9 +165,9 @@ class MatriculaPaquete(Base):
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
     precio_acordado = Column(Numeric(10, 2), nullable=False)
-    estado_pago = Column(String(30), nullable=False, default="pendiente")
-    reprogramaciones_usadas = Column(Integer, nullable=False, default=0)
-    estado = Column(String(20), nullable=False, default="activo")
+    estado_pago = Column(String(30), nullable=False, default="pendiente", server_default="pendiente")
+    reprogramaciones_usadas = Column(Integer, nullable=False, default=0, server_default="0")
+    estado = Column(String(20), nullable=False, default="activo", server_default="activo")
 
     __table_args__ = (
         CheckConstraint("precio_acordado >= 0.00", name="chk_precio_acordado"),
@@ -202,26 +208,27 @@ class Reserva(Base):
 
     __tablename__ = "reservas"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    id = Column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     alumno_id = Column(
-        UUID(as_uuid=True),
+        Uuid(as_uuid=True),
         ForeignKey("alumnos.id", ondelete="RESTRICT"),
         nullable=False,
     )
     servicio_id = Column(
-        UUID(as_uuid=True),
+        Uuid(as_uuid=True),
         ForeignKey("servicios.id", ondelete="RESTRICT"),
         nullable=False,
     )
     matricula_paquete_id = Column(
-        UUID(as_uuid=True),
+        Uuid(as_uuid=True),
         ForeignKey("matricula_paquetes.id", ondelete="SET NULL"),
         nullable=True,
     )
     fecha_hora_inicio = Column(DateTime(timezone=True), nullable=False)
     fecha_hora_fin = Column(DateTime(timezone=True), nullable=False)
-    estado = Column(String(30), nullable=False, default="pendiente_confirmacion")
-    estado_pago = Column(String(30), nullable=False, default="pendiente")
+    estado = Column(String(30), nullable=False, default="pendiente_confirmacion", server_default="pendiente_confirmacion")
+    estado_pago = Column(String(30), nullable=False, default="pendiente", server_default="pendiente")
+    reprogramaciones_usadas = Column(Integer, nullable=False, default=0, server_default="0")
     fecha_creacion = Column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
@@ -238,6 +245,10 @@ class Reserva(Base):
         CheckConstraint(
             "estado_pago IN ('pendiente', 'pagado_presencial')",
             name="chk_res_estado_pago",
+        ),
+        CheckConstraint(
+            "reprogramaciones_usadas >= 0 AND reprogramaciones_usadas <= 2",
+            name="chk_res_reprogramaciones",
         ),
         # Índice para verificación de disponibilidad y agenda diaria (idx_reservas_fechas)
         Index("idx_reservas_fechas", "fecha_hora_inicio", "fecha_hora_fin"),
@@ -268,21 +279,26 @@ class Administrador(Base):
     __tablename__ = "administradores"
 
     id = Column(
-        UUID(as_uuid=True),
+        Uuid(as_uuid=True),
         primary_key=True,
         default=uuid.uuid4,
-        index=True,
     )
-    email = Column(String(100), nullable=False, unique=True, index=True)
+    email = Column(String(100), nullable=False)
     password_hash = Column(String(255), nullable=False)
     nombres = Column(String(100), nullable=False)
     apellidos = Column(String(100), nullable=False)
     telefono = Column(String(20), nullable=True)
-    activo = Column(Boolean, default=True)
+    activo = Column(Boolean, nullable=False, default=True, server_default="true")
     fecha_creacion = Column(
         DateTime(timezone=True),
         server_default=func.now(),
         nullable=False,
+    )
+
+    __table_args__ = (
+        UniqueConstraint("email"),
+        Index("ix_administradores_email", "email", unique=True),
+        Index("ix_administradores_id", "id"),
     )
 
     def __repr__(self) -> str:
@@ -294,9 +310,9 @@ class ProgresoNivel(Base):
 
     __tablename__ = "progreso_niveles"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    id = Column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     alumno_id = Column(
-        UUID(as_uuid=True),
+        Uuid(as_uuid=True),
         ForeignKey("alumnos.id", ondelete="CASCADE"),
         nullable=False,
     )
@@ -305,7 +321,7 @@ class ProgresoNivel(Base):
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )
     fecha_fin = Column(DateTime(timezone=True), nullable=True)
-    estado = Column(String(20), nullable=False, default="en_progreso")
+    estado = Column(String(20), nullable=False, default="en_progreso", server_default="en_progreso")
 
     __table_args__ = (
         CheckConstraint(
@@ -337,12 +353,11 @@ class Falta(Base):
 
     __tablename__ = "faltas"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    id = Column(Uuid(as_uuid=True), primary_key=True, default=uuid.uuid4)
     reserva_id = Column(
-        UUID(as_uuid=True),
+        Uuid(as_uuid=True),
         ForeignKey("reservas.id", ondelete="CASCADE"),
         nullable=False,
-        index=True,  # idx_faltas_reserva
     )
     tipo_falta = Column(String(20), nullable=False)
     descripcion = Column(Text, nullable=False)
@@ -359,6 +374,7 @@ class Falta(Base):
             "tipo_falta IN ('Leve', 'Grave', 'Eliminatoria')", name="chk_tipo_falta"
         ),
         CheckConstraint("minuto_ocurrencia >= 0", name="chk_minuto"),
+        Index("idx_faltas_reserva", "reserva_id"),
     )
 
     # Relaciones

@@ -52,3 +52,6 @@ Thumbs.db
 # Logs
 *.log
 FRONTEND_SUMMARY.md
+
+.pnpm-store/
+frontend/test-results/

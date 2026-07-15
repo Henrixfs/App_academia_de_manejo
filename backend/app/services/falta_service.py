@@ -5,11 +5,12 @@ Servicio para registro de Faltas en simulacros.
 import uuid
 from typing import List
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from app.models import Falta, TipoFalta
 from app.schemas import FaltaCreate, FaltaResponse
 from app.repositories.falta_repository import FaltaRepository
 from app.repositories.reserva_repository import ReservaRepository
-from app.exceptions import ReservaNotFound, ValorInvalido
+from app.exceptions import ConflictoDatos, ReservaNotFound, ValorInvalido
 
 
 class FaltaService:
@@ -39,12 +40,18 @@ class FaltaService:
             observaciones=falta_create.observaciones,
         )
 
-        falta = self.repo_falta.create(falta)
-        return FaltaResponse.from_orm(falta)
+        try:
+            falta = self.repo_falta.create(falta)
+            self.db.commit()
+            self.db.refresh(falta)
+        except IntegrityError as exc:
+            self.db.rollback()
+            raise ConflictoDatos("No se pudo registrar la falta para esta reserva") from exc
+        return FaltaResponse.model_validate(falta)
 
     def listar_faltas_por_reserva(self, reserva_id: uuid.UUID) -> List[FaltaResponse]:
         """Listar todas las faltas de una reserva."""
         if not self.repo_reserva.get_by_id(reserva_id):
             raise ReservaNotFound()
         faltas = self.repo_falta.get_por_reserva(reserva_id)
-        return [FaltaResponse.from_orm(f) for f in faltas]
+        return [FaltaResponse.model_validate(f) for f in faltas]

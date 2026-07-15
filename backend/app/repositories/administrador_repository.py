@@ -34,5 +34,5 @@ class AdministradorRepository(BaseRepository[Administrador]):
         if not admin:
             return False
         admin.password_hash = password_hash
-        self.db.commit()
+        self.db.flush()
         return True

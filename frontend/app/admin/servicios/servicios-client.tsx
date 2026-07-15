@@ -12,7 +12,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
-import { post, put, del } from "@/lib/client-api-client"
+import { adminDelete, adminPost, adminPut } from "@/lib/admin-browser-client"
+import { ConfirmDialog, FeedbackMessage } from "@/components/feedback"
 
 interface Servicio {
   id: string
@@ -33,11 +34,18 @@ interface ServicioFormData {
   tiempo_minimo_horas: string
 }
 
-export function AdminServiciosClient({ initialServicios }: AdminServiciosClientProps) {
-  const [servicios, setServicios] = useState<Servicio[]>(initialServicios)
+const normalizeServicio = (servicio: Servicio): Servicio => ({
+  ...servicio,
+  tarifa: Number(servicio.tarifa),
+})
+
+export const AdminServiciosClient = ({ initialServicios }: AdminServiciosClientProps): React.ReactNode => {
+  const [servicios, setServicios] = useState<Servicio[]>(initialServicios.map(normalizeServicio))
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [editingServicio, setEditingServicio] = useState<Servicio | null>(null)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [deleteTarget, setDeleteTarget] = useState<string | null>(null)
   const [formData, setFormData] = useState<ServicioFormData>({
     nombre: "",
     descripcion: "",
@@ -73,43 +81,60 @@ export function AdminServiciosClient({ initialServicios }: AdminServiciosClientP
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setErrorMessage(null)
     setIsLoading(true)
     try {
+      const parsedTarifa = parseFloat(formData.tarifa)
+      const parsedTiempoMinimo = parseInt(formData.tiempo_minimo_horas, 10)
+
+      if (isNaN(parsedTarifa) || parsedTarifa < 0) {
+        setErrorMessage("La tarifa debe ser un número válido mayor o igual a 0")
+        setIsLoading(false)
+        return
+      }
+
+      if (isNaN(parsedTiempoMinimo) || parsedTiempoMinimo < 1) {
+        setErrorMessage("El tiempo mínimo debe ser de al menos 1 hora")
+        setIsLoading(false)
+        return
+      }
+
       const data = {
         nombre: formData.nombre,
         descripcion: formData.descripcion,
-        tarifa: parseFloat(formData.tarifa),
-        tiempo_minimo_horas: parseInt(formData.tiempo_minimo_horas),
+        tarifa: parsedTarifa,
+        tiempo_minimo_horas: parsedTiempoMinimo,
       }
 
       if (editingServicio) {
-        const updated = await put(`/api/servicios/${editingServicio.id}`, data)
-        setServicios(servicios.map(s => s.id === editingServicio.id ? updated as Servicio : s))
+        const updated = normalizeServicio(await adminPut<Servicio>(`servicios/${editingServicio.id}`, data))
+        setServicios(servicios.map(s => s.id === editingServicio.id ? updated : s))
       } else {
-        const created = await post('/api/servicios/', data)
-        setServicios([...servicios, created as Servicio])
+        const created = normalizeServicio(await adminPost<Servicio>('servicios', data))
+        setServicios([...servicios, created])
       }
       handleCloseModal()
     } catch (error) {
-      console.error("Error al guardar servicio:", error)
-      alert("Error al guardar el servicio")
+      setErrorMessage(error instanceof Error ? error.message : "Error al guardar el servicio")
     } finally {
       setIsLoading(false)
     }
   }
 
-  const handleDelete = async (id: string) => {
-    if (confirm("¿Estás seguro de eliminar este servicio?")) {
-      setIsLoading(true)
-      try {
-        await del(`/api/servicios/${id}`)
-        setServicios(servicios.filter(s => s.id !== id))
-      } catch (error) {
-        console.error("Error al eliminar servicio:", error)
-        alert("Error al eliminar el servicio")
-      } finally {
-        setIsLoading(false)
-      }
+  const handleDelete = (id: string): void => setDeleteTarget(id)
+
+  const confirmDelete = async (): Promise<void> => {
+    if (!deleteTarget) return
+    setErrorMessage(null)
+    setIsLoading(true)
+    try {
+      await adminDelete<void>(`servicios/${deleteTarget}`)
+      setServicios((current) => current.filter((servicio) => servicio.id !== deleteTarget))
+      setDeleteTarget(null)
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Error al eliminar el servicio")
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -125,6 +150,8 @@ export function AdminServiciosClient({ initialServicios }: AdminServiciosClientP
           Nuevo Servicio
         </Button>
       </div>
+
+      <FeedbackMessage message={errorMessage} />
 
       {servicios.length === 0 ? (
         <Card className="border-border/60 shadow-admin-card">
@@ -274,6 +301,14 @@ export function AdminServiciosClient({ initialServicios }: AdminServiciosClientP
           </form>
         </DialogContent>
       </Dialog>
+      <ConfirmDialog
+        open={deleteTarget !== null}
+        title="Eliminar servicio"
+        description="Esta acción no se puede deshacer y fallará si el servicio tiene reservas relacionadas."
+        loading={isLoading}
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={confirmDelete}
+      />
     </>
   )
 }

@@ -11,7 +11,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import { post } from "@/lib/client-api-client"
+import { adminPost } from "@/lib/admin-browser-client"
+import { ConfirmDialog, FeedbackMessage } from "@/components/feedback"
 
 interface Reserva {
   id: string
@@ -28,7 +29,7 @@ interface Reserva {
 interface AdminReservasClientProps {
   initialReservas: Reserva[]
   alumnos: { id: string; nombres: string; apellidos: string; documento_identidad: string }[]
-  servicios: { id: string; nombre: string; descripcion: string; tarifa: number }[]
+  servicios: { id: string; nombre: string; descripcion: string; tarifa: number; tiempo_minimo_horas: number }[]
 }
 
 const ITEMS_PER_PAGE = 10
@@ -44,7 +45,7 @@ const estadoConfig: Record<string, { label: string; className: string; icon: typ
 
 const estadosCancelables = ["pendiente_confirmacion", "confirmada"]
 
-export function AdminReservasClient({ initialReservas, alumnos, servicios }: AdminReservasClientProps) {
+export const AdminReservasClient = ({ initialReservas, alumnos, servicios }: AdminReservasClientProps): React.ReactNode => {
   const [reservas, setReservas] = useState<Reserva[]>(initialReservas)
   const [statusFilter, setStatusFilter] = useState<string>("todos")
   const [currentPage, setCurrentPage] = useState(1)
@@ -52,6 +53,8 @@ export function AdminReservasClient({ initialReservas, alumnos, servicios }: Adm
   // Modal crear reserva
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [cancelTarget, setCancelTarget] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     alumno_id: "",
     servicio_id: "",
@@ -71,6 +74,33 @@ export function AdminReservasClient({ initialReservas, alumnos, servicios }: Adm
 
   const alumnoMap = new Map(alumnos.map(a => [a.id, a]))
   const servicioMap = new Map(servicios.map(s => [s.id, s]))
+
+  const buildLimaDateTime = (fecha: string, hora: string) => `${fecha}T${hora}:00-05:00`
+
+  const validateHorario = (
+    fecha: string,
+    horaInicio: string,
+    horaFin: string,
+    servicioId: string
+  ): string | null => {
+    const servicio = servicioMap.get(servicioId)
+    const inicio = new Date(buildLimaDateTime(fecha, horaInicio))
+    const fin = new Date(buildLimaDateTime(fecha, horaFin))
+    if (Number.isNaN(inicio.getTime()) || Number.isNaN(fin.getTime())) {
+      return "Selecciona una fecha y horas validas"
+    }
+    if (fin <= inicio) {
+      return "La hora de fin debe ser posterior a la hora de inicio"
+    }
+    if (horaInicio < "08:00" || horaFin > "18:00") {
+      return "El horario de atencion es de 08:00 a 18:00"
+    }
+    const durationHours = (fin.getTime() - inicio.getTime()) / 3_600_000
+    if (servicio && durationHours < servicio.tiempo_minimo_horas) {
+      return `La duracion minima para ${servicio.nombre} es de ${servicio.tiempo_minimo_horas} hora(s)`
+    }
+    return null
+  }
 
   const filteredReservas = reservas.filter((reserva) => {
     if (statusFilter === "todos") return true
@@ -96,12 +126,24 @@ export function AdminReservasClient({ initialReservas, alumnos, servicios }: Adm
 
   const handleSubmitCreate = async (e: React.FormEvent) => {
     e.preventDefault()
+    setErrorMessage(null)
     setIsLoading(true)
     try {
-      const fechaHoraInicio = `${formData.fecha}T${formData.hora_inicio}:00`
-      const fechaHoraFin = `${formData.fecha}T${formData.hora_fin}:00`
+      const validationMessage = validateHorario(
+        formData.fecha,
+        formData.hora_inicio,
+        formData.hora_fin,
+        formData.servicio_id
+      )
+      if (validationMessage) {
+        setErrorMessage(validationMessage)
+        setIsLoading(false)
+        return
+      }
+      const fechaHoraInicio = buildLimaDateTime(formData.fecha, formData.hora_inicio)
+      const fechaHoraFin = buildLimaDateTime(formData.fecha, formData.hora_fin)
 
-      const nuevaReserva = await post<Reserva>('/api/reservas/', {
+      const nuevaReserva = await adminPost<Reserva>('reservas', {
         alumno_id: formData.alumno_id,
         servicio_id: formData.servicio_id,
         fecha_hora_inicio: fechaHoraInicio,
@@ -111,8 +153,7 @@ export function AdminReservasClient({ initialReservas, alumnos, servicios }: Adm
       setReservas(prev => [nuevaReserva, ...prev])
       handleCloseCreateModal()
     } catch (error) {
-      console.error("Error al crear reserva:", error)
-      alert(error instanceof Error ? error.message : "Error al crear la reserva")
+      setErrorMessage(error instanceof Error ? error.message : "Error al crear la reserva")
     } finally {
       setIsLoading(false)
     }
@@ -120,18 +161,20 @@ export function AdminReservasClient({ initialReservas, alumnos, servicios }: Adm
 
   // ─── Cancelar reserva ──────────────────────────────────────────────────────
 
-  const handleCancelar = async (id: string) => {
-    if (confirm("¿Estás seguro de cancelar esta reserva?")) {
-      setIsLoading(true)
-      try {
-        const updated = await post<Reserva>(`/api/reservas/${id}/cancelar`, {})
-        setReservas(prev => prev.map(r => r.id === id ? updated : r))
-      } catch (error) {
-        console.error("Error al cancelar reserva:", error)
-        alert(error instanceof Error ? error.message : "Error al cancelar la reserva")
-      } finally {
-        setIsLoading(false)
-      }
+  const handleCancelar = (id: string): void => setCancelTarget(id)
+
+  const confirmCancelar = async (): Promise<void> => {
+    if (!cancelTarget) return
+    setErrorMessage(null)
+    setIsLoading(true)
+    try {
+      const updated = await adminPost<Reserva>(`reservas/${cancelTarget}/cancelar`, {})
+      setReservas((current) => current.map((reserva) => reserva.id === cancelTarget ? updated : reserva))
+      setCancelTarget(null)
+    } catch (error) {
+      setErrorMessage(error instanceof Error ? error.message : "Error al cancelar la reserva")
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -140,14 +183,16 @@ export function AdminReservasClient({ initialReservas, alumnos, servicios }: Adm
   const handleOpenReprogramarModal = (reserva: Reserva) => {
     const inicio = new Date(reserva.fecha_hora_inicio)
     const fin = new Date(reserva.fecha_hora_fin)
-    const toLocalDate = (d: Date) => d.toISOString().split('T')[0]
-    const toLocalTime = (d: Date) => d.toTimeString().slice(0, 5)
+    const toLimaDate = (d: Date) =>
+      new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Lima' }).format(d)
+    const toLimaTime = (d: Date) =>
+      new Intl.DateTimeFormat('en-GB', { timeZone: 'America/Lima', hour: '2-digit', minute: '2-digit', hour12: false }).format(d)
 
     setReprogramarReservaId(reserva.id)
     setReprogramarForm({
-      fecha: toLocalDate(inicio),
-      hora_inicio: toLocalTime(inicio),
-      hora_fin: toLocalTime(fin),
+      fecha: toLimaDate(inicio),
+      hora_inicio: toLimaTime(inicio),
+      hora_fin: toLimaTime(fin),
     })
     setIsReprogramarModalOpen(true)
   }
@@ -160,12 +205,25 @@ export function AdminReservasClient({ initialReservas, alumnos, servicios }: Adm
   const handleSubmitReprogramar = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!reprogramarReservaId) return
+    setErrorMessage(null)
     setIsLoading(true)
     try {
-      const nuevaInicio = `${reprogramarForm.fecha}T${reprogramarForm.hora_inicio}:00`
-      const nuevaFin = `${reprogramarForm.fecha}T${reprogramarForm.hora_fin}:00`
+      const reserva = reservas.find((item) => item.id === reprogramarReservaId)
+      const validationMessage = validateHorario(
+        reprogramarForm.fecha,
+        reprogramarForm.hora_inicio,
+        reprogramarForm.hora_fin,
+        reserva?.servicio_id || ""
+      )
+      if (validationMessage) {
+        setErrorMessage(validationMessage)
+        setIsLoading(false)
+        return
+      }
+      const nuevaInicio = buildLimaDateTime(reprogramarForm.fecha, reprogramarForm.hora_inicio)
+      const nuevaFin = buildLimaDateTime(reprogramarForm.fecha, reprogramarForm.hora_fin)
 
-      const updated = await post<Reserva>(`/api/reservas/${reprogramarReservaId}/reprogramar`, {
+      const updated = await adminPost<Reserva>(`reservas/${reprogramarReservaId}/reprogramar`, {
         nueva_fecha_hora_inicio: nuevaInicio,
         nueva_fecha_hora_fin: nuevaFin,
       })
@@ -173,8 +231,7 @@ export function AdminReservasClient({ initialReservas, alumnos, servicios }: Adm
       setReservas(prev => prev.map(r => r.id === reprogramarReservaId ? updated : r))
       handleCloseReprogramarModal()
     } catch (error) {
-      console.error("Error al reprogramar reserva:", error)
-      alert(error instanceof Error ? error.message : "Error al reprogramar la reserva")
+      setErrorMessage(error instanceof Error ? error.message : "Error al reprogramar la reserva")
     } finally {
       setIsLoading(false)
     }
@@ -218,6 +275,8 @@ export function AdminReservasClient({ initialReservas, alumnos, servicios }: Adm
           Nueva Reserva
         </Button>
       </div>
+
+      <FeedbackMessage message={errorMessage} />
 
       {/* Filtros */}
       <Card className="mb-6 border-border/60 shadow-admin-card bg-gradient-to-r from-card to-muted/20">
@@ -511,6 +570,14 @@ export function AdminReservasClient({ initialReservas, alumnos, servicios }: Adm
           </form>
         </DialogContent>
       </Dialog>
+      <ConfirmDialog
+        open={cancelTarget !== null}
+        title="Cancelar reserva"
+        description="La reserva cambiará a estado cancelado y ya no podrá confirmarse ni reprogramarse."
+        loading={isLoading}
+        onCancel={() => setCancelTarget(null)}
+        onConfirm={confirmCancelar}
+      />
 
       {/* ─── Modal: Reprogramar Reserva ─── */}
       <Dialog open={isReprogramarModalOpen} onOpenChange={setIsReprogramarModalOpen}>

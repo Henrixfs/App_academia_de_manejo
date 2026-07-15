@@ -1,13 +1,2 @@
-FastAPI==0.104.1
-uvicorn[standard]==0.24.0
-SQLAlchemy==2.0.0
-alembic==1.13.1
-psycopg2-binary==2.9.9
-pg8000==1.30.3
-pydantic==2.5.0
-pydantic-settings==2.1.0
-python-dotenv==1.0.0
-pytest==7.4.3
-pytest-asyncio==0.21.1
-httpx==0.25.1
+-r backend/requirements.txt
 # <!-- NOTA: pg8000 agregado para evitar UnicodeDecodeError de psycopg2/libpq en Windows con locale español -->

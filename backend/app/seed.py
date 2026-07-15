@@ -19,27 +19,23 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 load_dotenv()
 
-import bcrypt
-from app.database import SessionLocal, engine, Base
-from app.models import Alumno, Servicio, Paquete, Administrador
+from app.database import SessionLocal
+from app.models import Servicio, Paquete, Administrador
+from app.utils.auth import get_password_hash
 
 
-ADMIN_EMAIL = os.getenv("ADMIN_EMAIL", "admin@academia.com")
-ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
+ADMIN_EMAIL = os.getenv("ADMIN_EMAIL")
+ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD")
 ADMIN_NOMBRES = os.getenv("ADMIN_NOMBRES", "Administrador")
 ADMIN_APELLIDOS = os.getenv("ADMIN_APELLIDOS", "Sistema")
 ADMIN_TELEFONO = os.getenv("ADMIN_TELEFONO", "000000000")
 
 
-def get_password_hash(password: str) -> str:
-    """Genera un hash bcrypt de la contraseña."""
-    password_bytes = password.encode('utf-8')
-    salt = bcrypt.gensalt()
-    hashed = bcrypt.hashpw(password_bytes, salt)
-    return hashed.decode('utf-8')
-
-
 def create_admin(db):
+    if not ADMIN_EMAIL or not ADMIN_PASSWORD:
+        raise RuntimeError("ADMIN_EMAIL y ADMIN_PASSWORD son obligatorios para ejecutar el seed")
+    if len(ADMIN_PASSWORD) < 10 or not any(char.isalpha() for char in ADMIN_PASSWORD) or not any(char.isdigit() for char in ADMIN_PASSWORD):
+        raise RuntimeError("ADMIN_PASSWORD debe tener al menos 10 caracteres e incluir letras y números")
     existing = db.query(Administrador).filter(Administrador.email == ADMIN_EMAIL).first()
     if existing:
         print(f"Admin {ADMIN_EMAIL} ya existe, omitiendo...")
