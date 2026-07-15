@@ -1,4 +1,5 @@
 from functools import lru_cache
+from urllib.parse import urlparse
 
 from pydantic import field_validator, model_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -39,6 +40,16 @@ class Settings(BaseSettings):
                 raise ValueError("SECRET_KEY debe tener al menos 32 caracteres seguros en producción")
             if self.DEBUG:
                 raise ValueError("DEBUG debe estar desactivado en producción")
+            app_url = urlparse(self.APP_URL)
+            if (
+                app_url.scheme != "https"
+                or not app_url.hostname
+                or app_url.path
+                or app_url.params
+                or app_url.query
+                or app_url.fragment
+            ):
+                raise ValueError("APP_URL debe ser un origen HTTPS válido en producción")
         return self
 
     @property

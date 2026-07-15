@@ -13,6 +13,8 @@ Aplicación web para administrar alumnos, servicios y reservas. El backend usa F
 - Las reservas se almacenan en UTC y se validan con horario comercial `America/Lima` de 08:00 a 18:00.
 - PostgreSQL impide reservas solapadas mediante una restricción de exclusión. SQLite se usa solo para pruebas unitarias rápidas.
 
+Para desplegar en AWS EC2 con Application Load Balancer, HTTPS, migraciones, bootstrap del administrador y respaldo de PostgreSQL, siga la guÃ­a de [despliegue en AWS](docs/deployment/aws-ec2.md).
+
 ## Requisitos
 
 - Python 3.12
