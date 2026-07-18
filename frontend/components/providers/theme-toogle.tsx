@@ -7,14 +7,42 @@ import { Moon, Sun } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export function ThemeToggle() {
-  const { setTheme, theme } = useTheme()
+  const { setTheme } = useTheme()
+  const [isDark, setIsDark] = React.useState(false)
+
+  React.useEffect(() => {
+    const syncTheme = () => {
+      setIsDark(document.documentElement.classList.contains("dark"))
+    }
+
+    syncTheme()
+
+    const observer = new MutationObserver(syncTheme)
+    observer.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class"],
+    })
+
+    return () => observer.disconnect()
+  }, [])
+
+  const toggleTheme = () => {
+    const nextTheme = document.documentElement.classList.contains("dark")
+      ? "light"
+      : "dark"
+
+    setIsDark(nextTheme === "dark")
+    setTheme(nextTheme)
+  }
 
   return (
     <Button
       variant="ghost"
       size="icon"
-      onClick={() => setTheme(theme === "light" ? "dark" : "light")}
-      className="size-9"
+      onClick={toggleTheme}
+      className="relative size-9 rounded-full border border-border/70 bg-card/70 shadow-sm hover:bg-muted"
+      aria-label={isDark ? "Activar modo claro" : "Activar modo oscuro"}
+      title={isDark ? "Activar modo claro" : "Activar modo oscuro"}
     >
       <Sun className="size-4 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
       <Moon className="absolute size-4 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />

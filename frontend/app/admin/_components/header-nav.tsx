@@ -10,10 +10,10 @@ export function HeaderNavLink({ href, label }: { href: string; label: string }) 
   return (
     <Link
       href={href}
-      className={`text-sm font-medium transition-colors duration-200 ${
+      className={`rounded-full px-3 py-1.5 text-sm font-medium transition-colors duration-200 ${
         isActive
-          ? "text-primary"
-          : "text-muted-foreground hover:text-foreground"
+          ? "bg-primary text-primary-foreground shadow-admin-primary"
+          : "text-muted-foreground hover:bg-muted hover:text-foreground"
       }`}
     >
       {label}

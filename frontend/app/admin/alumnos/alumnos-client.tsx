@@ -155,13 +155,13 @@ export const AdminAlumnosClient = ({ initialAlumnos }: AdminAlumnosClientProps):
   }
 
   return (
-    <div className="container py-8">
-      <div className="mb-8 flex items-center justify-between animate-slide-up">
+    <div className="container admin-page">
+      <div className="admin-page-heading mb-8 flex items-center justify-between animate-slide-up">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Administración de Alumnos</h1>
           <p className="text-muted-foreground">Gestione los registros de estudiantes, seguimiento y evaluaciones.</p>
         </div>
-        <Button onClick={() => handleOpenModal()} className="gap-2">
+        <Button onClick={() => handleOpenModal()} className="button-gold gap-2">
           <Plus className="size-4" />
           Nuevo Alumno
         </Button>

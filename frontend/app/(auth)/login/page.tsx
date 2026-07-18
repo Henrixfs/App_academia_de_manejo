@@ -2,8 +2,9 @@
 
 import * as React from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { useActionState } from "react"
-import { Car, Eye, EyeOff, Loader2 } from "lucide-react"
+import { Eye, EyeOff, Loader2, ShieldCheck } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -24,16 +25,19 @@ const LoginPage = (): React.ReactNode => {
   }, [state])
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader className="space-y-1">
-        <div className="flex justify-center mb-2">
-          <div className="p-3 rounded-full bg-primary/10">
-            <Car className="size-8 text-primary" />
+    <Card className="auth-card w-full max-w-md">
+      <CardHeader className="space-y-2 pb-2">
+        <div className="mb-2 flex justify-center">
+          <div className="flex size-20 items-center justify-center rounded-3xl border border-secondary/25 bg-primary p-2 shadow-admin-primary">
+            <Image src="/logo.png" alt="Logo Academia de Manejo San Cristóbal VIP" width={64} height={64} className="size-16 rounded-2xl object-contain" priority />
           </div>
         </div>
-        <h1 className="font-heading text-2xl text-center font-medium">Iniciar Sesión</h1>
-        <CardDescription className="text-center">
-          Ingresa tus credenciales para acceder a tu cuenta
+        <div className="flex items-center justify-center gap-2 text-xs font-semibold tracking-wide text-secondary">
+          <ShieldCheck className="size-3.5" /> ACCESO SEGURO
+        </div>
+        <h1 className="font-heading text-center text-3xl font-semibold tracking-tight">Iniciar Sesión</h1>
+        <CardDescription className="mx-auto max-w-sm text-center leading-6">
+          Ingresa tus credenciales para acceder a tu cuenta.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -49,14 +53,10 @@ const LoginPage = (): React.ReactNode => {
               autoComplete="username"
               disabled={pending}
             />
-            {state?.errors?.username && (
-              <p className="text-sm text-destructive">{state.errors.username}</p>
-            )}
+            {state?.errors?.username && <p className="text-sm text-destructive">{state.errors.username}</p>}
           </div>
           <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="password">Contraseña</Label>
-            </div>
+            <Label htmlFor="password">Contraseña</Label>
             <div className="relative">
               <Input
                 id="password"
@@ -77,32 +77,15 @@ const LoginPage = (): React.ReactNode => {
                 disabled={pending}
                 aria-label={showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
               >
-                {showPassword ? (
-                  <EyeOff className="size-4 text-muted-foreground" />
-                ) : (
-                  <Eye className="size-4 text-muted-foreground" />
-                )}
-                <span className="sr-only">
-                  {showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}
-                </span>
+                {showPassword ? <EyeOff className="size-4 text-muted-foreground" /> : <Eye className="size-4 text-muted-foreground" />}
+                <span className="sr-only">{showPassword ? "Ocultar contraseña" : "Mostrar contraseña"}</span>
               </Button>
             </div>
-            {state?.errors?.password && (
-              <p className="text-sm text-destructive">{state.errors.password}</p>
-            )}
+            {state?.errors?.password && <p className="text-sm text-destructive">{state.errors.password}</p>}
           </div>
-          {state?.message && (
-            <p className="text-sm text-destructive" role="alert" aria-live="polite">{state.message}</p>
-          )}
-          <Button type="submit" className="w-full" disabled={pending}>
-            {pending ? (
-              <>
-                <Loader2 className="size-4 animate-spin" />
-                Ingresando...
-              </>
-            ) : (
-              "Iniciar Sesión"
-            )}
+          {state?.message && <p className="text-sm text-destructive" role="alert" aria-live="polite">{state.message}</p>}
+          <Button type="submit" className="button-gold w-full" disabled={pending}>
+            {pending ? <><Loader2 className="size-4 animate-spin" />Ingresando...</> : "Iniciar Sesión"}
           </Button>
           {process.env.NODE_ENV === "development" && (
             <p className="text-center text-sm text-muted-foreground">

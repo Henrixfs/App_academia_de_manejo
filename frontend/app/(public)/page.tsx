@@ -1,4 +1,5 @@
-import { Shield, Clock, Award, Users, Star, MapPin, Phone, CheckCircle, FileText, Car, HelpCircle } from "lucide-react"
+import Image from "next/image"
+import { Award, Car, CheckCircle2, Clock, FileText, GraduationCap, HelpCircle, MapPin, Phone, ShieldCheck, Star, Users } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -6,92 +7,110 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { ContactForm } from "@/components/contact-form"
 
+const values = [
+  { icon: ShieldCheck, title: "Seguridad", description: "La integridad del alumno e instructor es prioritaria en toda sesión." },
+  { icon: Users, title: "Paciencia Pedagógica", description: "El ritmo de enseñanza se adapta al nivel de cada alumno." },
+  { icon: Award, title: "Excelencia", description: "Preparación integral para afrontar cada evaluación con confianza." },
+  { icon: CheckCircle2, title: "Responsabilidad Vial", description: "Respeto a las normas de tránsito desde la primera clase." },
+  { icon: FileText, title: "Transparencia", description: "Comunicación clara sobre procesos, trámites y requisitos." },
+]
+
+const services = [
+  {
+    icon: FileText,
+    title: "Simulacro Tipo Examen",
+    price: "S/ 40.00",
+    duration: "1 hora",
+    description: "Evaluación práctica con los mismos criterios del centro oficial de emisión de licencias.",
+    features: ["Clasifica faltas leves, graves y eliminatorias", "Retroalimentación escrita al finalizar", "Observaciones y puntos de mejora"],
+  },
+  {
+    icon: Car,
+    title: "Circuito Libre",
+    price: "S/ 40.00",
+    duration: "1 hora mínimo",
+    description: "Alquiler de pista para práctica de maniobras específicas.",
+    features: ["Estacionamiento en paralelo", "Marcha atrás", "Curvas cerradas", "Reserva previa obligatoria"],
+    popular: true,
+  },
+  {
+    icon: GraduationCap,
+    title: "Paquete San Cristóbal",
+    price: "Consultar",
+    duration: "Paquete completo",
+    description: "Programa completo desde nivel básico hasta nivel intermedio con acompañamiento constante.",
+    features: ["Evaluación diagnóstica inicial", "Sesiones progresivas por niveles", "Simulacro de cierre", "Asesoría en trámites incluida"],
+  },
+]
+
+const faqs = [
+  ["¿Necesito experiencia previa para inscribirme?", "No. El Paquete San Cristóbal está diseñado para iniciar desde nivel cero. La metodología es progresiva y el instructor adapta el ritmo al nivel real del alumno."],
+  ["¿Los vehículos cuentan con doble comando?", "Sí. Todos los vehículos de la flota disponen de doble mando, lo que garantiza la intervención inmediata del instructor ante cualquier situación de riesgo."],
+  ["¿Cuánto cuesta la práctica en el circuito?", "La tarifa es de S/ 40.00 por hora, aplicable al Circuito Libre y al Simulacro Tipo Examen. El Paquete San Cristóbal tiene tarifa diferenciada; consultar al momento de la inscripción."],
+  ["¿Cuál es el horario de atención?", "La academia atiende de lunes a viernes de 8:00 a.m. a 6:00 p.m. Las consultas fuera de ese horario serán respondidas el siguiente día hábil."],
+  ["¿Qué pasa si no apruebo el examen oficial?", "Los alumnos del Paquete San Cristóbal tienen derecho a sesiones de refuerzo y un nuevo simulacro sin costo adicional hasta lograr la aprobación."],
+  ["¿Puedo alquilar el circuito sin inscribirme en un paquete?", "Sí, mediante el servicio Circuito Libre a S/ 40.00 por hora. Se requiere reserva previa con mínimo de 1 hora dentro del horario de atención."],
+  ["¿La academia ayuda con los trámites de la licencia?", "Sí. El servicio de Asesoría en Trámites guía al alumno paso a paso en la programación de su cita y el cumplimiento de los requisitos documentarios ante la autoridad competente."],
+  ["¿Cómo llego a la academia?", "Dirección: Jr. Los Morochucos N° 349, Ayacucho, a unas cuadras del Arco Magisterial. Puedes llegar tomando la Ruta 7 o la Ruta 12 del transporte público."],
+]
+
 function Hero() {
   return (
-    <section className="relative py-20 md:py-32 overflow-hidden">
-      <div className="container relative z-10">
-        <div className="flex flex-col items-center text-center gap-6 max-w-3xl mx-auto">
-          <Badge variant="secondary" className="text-sm">
-            <Star className="size-3.5 mr-1" />
-            Más de 5000 alumnos graduados
+    <section className="hero-road text-white">
+      <div className="container hero-road-grid grid items-center gap-12 py-16 md:py-20 lg:grid-cols-[1.15fr_0.85fr] lg:py-24">
+        <div className="relative z-10 max-w-2xl">
+          <Badge className="mb-6 border border-amber-200/20 bg-amber-100/10 px-3 py-1.5 text-amber-100 hover:bg-amber-100/10">
+            <Star className="mr-1 size-3.5 fill-current" /> Más de 5000 alumnos graduados
           </Badge>
-          <h1 className="text-4xl md:text-6xl font-bold tracking-tight">
-            Academia de Manejo San Cristóbal VIP
-          </h1>
-          <p className="text-lg text-muted-foreground max-w-2xl">
-            Centro de entrenamiento especializado en formación de conductores seguros y capacitados en Ayacucho.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 mt-4">
-<Button size="lg" className="bg-green-700 hover:bg-green-800" asChild>
-              <a href="https://wa.me/51992684562" target="_blank" rel="noopener noreferrer">
-                <svg className="size-5 mr-2" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.203 5.076 4.642.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.189 6.93 3.207l.394-1.089a12.11 12.11 0 002.68-7.161l-.001-.001a12.11 12.11 0 00-2.68 7.161l.394 1.089c.51-.514 1.15-.983 1.85-1.384a9.87 9.87 0 011.511-5.26 9.87 9.87 0 00-1.511 5.26v.001c.015.28.022.565.022.849 0 2.333-.526 4.415-1.338 6.08-.148.302-.311.596-.492.88l.013.001.017.002.01.003.003.001.007.007.001.002a9.83 9.83 0 01.492.88 9.84 9.84 0 01-1.338 6.08 9.87 9.87 0 00-1.511 5.26 9.87 9.87 0 001.511-5.26l-.001-.001a9.86 9.86 0 001.51-5.26v.001c.015.28.022.565.022.849 0 2.333-.526 4.415-1.338 6.08-.148.302-.311.596-.492.88l.013.001.017.002.01.003.003.001.007.007.001.002a9.83 9.83 0 01.492.88 9.84 9.84 0 01-1.338 6.08 9.87 9.87 0 00-1.511 5.26 9.87 9.87 0 001.511-5.26l-.001-.001a9.86 9.86 0 001.51-5.26 9.86 9.86 0 00-1.51 5.26l.361.214 3.741-.982-.998 3.648.235.374a9.86 9.86 0 001.51 5.26 9.87 9.87 0 005.032 1.378l.361.214 3.741-.982-.998 3.648.235.374a9.86 9.86 0 001.51 5.26c-.297.149-1.758.867-2.03.967-.273.099-.471.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.203 5.076 4.642.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/>
-                </svg>
-                Reservar por WhatsApp
-              </a>
+          <p className="mb-4 text-sm font-semibold tracking-[0.16em] text-amber-200">FORMACIÓN VIAL PREMIUM EN AYACUCHO</p>
+          <h1 className="font-heading text-4xl font-semibold leading-[1.06] tracking-tight sm:text-5xl lg:text-6xl">Academia de Manejo San Cristóbal VIP</h1>
+          <p className="mt-6 max-w-xl text-lg leading-8 text-slate-300">Centro de entrenamiento especializado en formación de conductores seguros y capacitados. Aprende con claridad, paciencia y una ruta diseñada para tu confianza.</p>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row">
+            <Button size="lg" className="button-gold rounded-full px-6" asChild>
+              <a href="https://wa.me/51992684562" target="_blank" rel="noopener noreferrer">Reservar por WhatsApp</a>
             </Button>
-            <Button size="lg" variant="outline" asChild>
-              <a href="#servicios">Ver Servicios</a>
+            <Button size="lg" variant="outline" className="rounded-full border-white/25 bg-white/5 px-6 text-white hover:bg-white/10 hover:text-white" asChild>
+              <a href="#servicios">Ver servicios</a>
             </Button>
           </div>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground mt-4">
-            <MapPin className="size-4" />
-            <span>Jr. Los Morochucos N° 349, Ayacucho · A unas cuadras del Arco Magisterial</span>
+          <p className="mt-8 flex items-center gap-2 text-sm text-slate-300"><MapPin className="size-4 text-amber-300" /> Jr. Los Morochucos N° 349, Ayacucho · A unas cuadras del Arco Magisterial</p>
+        </div>
+
+        <div className="hero-crest-panel relative mx-auto w-full max-w-md rounded-[2rem] p-6 sm:p-8">
+          <div className="relative z-10 flex flex-col items-center text-center">
+            <div className="rounded-[1.75rem] border border-white/10 bg-black/20 p-5 shadow-2xl">
+              <Image src="/logo.png" alt="Escudo de San Cristóbal VIP" width={190} height={190} className="size-40 rounded-3xl object-contain sm:size-48" priority />
+            </div>
+            <p className="mt-6 text-sm font-semibold tracking-[0.15em] text-amber-200">CONDUCE CON CONFIANZA</p>
+            <p className="mt-3 max-w-xs text-sm leading-6 text-slate-300">Una experiencia de aprendizaje segura, ordenada y acompañada desde tu primera práctica.</p>
+            <div className="mt-7 grid w-full grid-cols-3 gap-2">
+              <div className="hero-stat rounded-2xl p-3"><ShieldCheck className="mx-auto size-5 text-amber-300" /><p className="mt-2 text-[11px] text-slate-300">Seguridad</p></div>
+              <div className="hero-stat rounded-2xl p-3"><Car className="mx-auto size-5 text-amber-300" /><p className="mt-2 text-[11px] text-slate-300">Práctica</p></div>
+              <div className="hero-stat rounded-2xl p-3"><GraduationCap className="mx-auto size-5 text-amber-300" /><p className="mt-2 text-[11px] text-slate-300">Progreso</p></div>
+            </div>
           </div>
         </div>
       </div>
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-primary/5 to-transparent" />
     </section>
   )
 }
 
 function Values() {
-  const values = [
-    {
-      icon: Shield,
-      title: "Seguridad",
-      description: "La integridad del alumno e instructor es prioritaria en toda sesión.",
-    },
-    {
-      icon: Users,
-      title: "Paciencia Pedagógica",
-      description: "El ritmo de enseñanza se adapta al nivel de cada alumno.",
-    },
-    {
-      icon: Award,
-      title: "Excelencia",
-      description: "Preparación integral que garantice la aprobación en primer intento.",
-    },
-    {
-      icon: CheckCircle,
-      title: "Responsabilidad Vial",
-      description: "Respeto a las normas de tránsito desde la primera clase.",
-    },
-    {
-      icon: FileText,
-      title: "Transparencia",
-      description: "Comunicación clara sobre procesos, trámites y requisitos.",
-    },
-  ]
-
   return (
-    <section className="py-16 md:py-24 bg-muted/50">
+    <section className="landing-soft-section py-16 md:py-24">
       <div className="container">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Nuestros Valores</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            En la Academia de Manejo San Cristóbal VIP, nuestros valores guían cada sesión de enseñanza.
-          </p>
+        <div className="mx-auto mb-12 max-w-2xl text-center">
+          <p className="text-sm font-semibold tracking-[0.15em] text-secondary">NUESTRA PROMESA</p>
+          <h2 className="landing-section-title mt-3 text-3xl font-semibold sm:text-4xl">Aprender a conducir también es aprender a confiar.</h2>
+          <p className="mt-4 text-muted-foreground">Nuestros valores guían cada sesión de enseñanza y cada decisión en el circuito.</p>
         </div>
-        <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-6">
-          {values.map((value, index) => (
-            <Card key={index} className="border-0 shadow-sm text-center">
-              <CardHeader>
-                <value.icon className="size-10 mb-2 text-primary mx-auto" />
-                <CardTitle className="text-lg">{value.title}</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <p className="text-sm text-muted-foreground">{value.description}</p>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+          {values.map((value) => (
+            <Card key={value.title} className="premium-card card-hover-effect py-0">
+              <CardContent className="p-6 text-center">
+                <div className="icon-circle icon-circle-primary mx-auto mb-4"><value.icon className="size-5" /></div>
+                <h3 className="font-heading font-semibold">{value.title}</h3>
+                <p className="mt-2 text-sm leading-6 text-muted-foreground">{value.description}</p>
               </CardContent>
             </Card>
           ))}
@@ -102,94 +121,32 @@ function Values() {
 }
 
 function Services() {
-  const services = [
-    {
-      icon: FileText,
-      title: "Simulacro Tipo Examen",
-      price: "S/ 40.00",
-      duration: "1 hora",
-      description: "Evaluación práctica con los mismos criterios del centro oficial de emisión de licencias.",
-      features: [
-        "Clasifica las infracciones en faltas leves, graves y eliminatorias",
-        "Retroalimentación escrita al finalizar",
-        "Observaciones y puntos de mejora",
-      ],
-    },
-    {
-      icon: Car,
-      title: "Circuito Libre",
-      price: "S/ 40.00",
-      duration: "1 hora mínimo",
-      description: "Alquiler de pista para práctica de maniobras específicas.",
-      features: [
-        "Estacionamiento en paralelo",
-        "Marcha atrás",
-        "Curvas cerradas",
-        "Reserva previa obligatoria",
-      ],
-      popular: true,
-    },
-    {
-      icon: Award,
-      title: "Paquete San Cristóbal",
-      price: "Consultar",
-      duration: "Paquete completo",
-      description: "Programa completo desde nivel básico hasta nivel intermedio con acompañamiento constante.",
-      features: [
-        "Evaluación diagnóstica inicial",
-        "Sesiones progresivas por niveles",
-        "Simulacro de cierre",
-        "Asesoría en trámites incluida",
-      ],
-    },
-  ]
-
   return (
     <section id="servicios" className="py-16 md:py-24">
       <div className="container">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Nuestros Servicios</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Elige el servicio que mejor se adapte a tus necesidades y comienza tu camino hacia la conducción segura.
-          </p>
+        <div className="mx-auto mb-12 max-w-2xl text-center">
+          <p className="text-sm font-semibold tracking-[0.15em] text-secondary">RUTAS DE APRENDIZAJE</p>
+          <h2 className="landing-section-title mt-3 text-3xl font-semibold sm:text-4xl">Elige la práctica que te acerca a tu meta.</h2>
+          <p className="mt-4 text-muted-foreground">Servicios claros, acompañamiento profesional y un circuito pensado para avanzar con seguridad.</p>
         </div>
-
-        <div className="grid md:grid-cols-3 gap-6">
-          {services.map((service, index) => (
-            <Card key={index} className={service.popular ? "relative border-primary shadow-lg" : ""}>
-              {service.popular && (
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2">
-                  <Badge>Más Popular</Badge>
-                </div>
-              )}
+        <div className="grid gap-6 lg:grid-cols-3">
+          {services.map((service) => (
+            <Card key={service.title} className={`premium-card card-hover-effect relative ${service.popular ? "service-card-popular" : ""}`}>
+              {service.popular && <Badge className="absolute right-6 top-5 bg-primary text-primary-foreground">Más popular</Badge>}
               <CardHeader>
-                <service.icon className="size-10 mb-2 text-primary" />
-                <CardTitle>{service.title}</CardTitle>
-                <CardDescription>{service.description}</CardDescription>
+                <div className="icon-circle icon-circle-accent mb-3"><service.icon className="size-5" /></div>
+                <CardTitle className="text-xl font-semibold">{service.title}</CardTitle>
+                <CardDescription className="leading-6">{service.description}</CardDescription>
               </CardHeader>
-              <CardContent>
-                <div className="mb-4">
-                  <span className="text-3xl font-bold">{service.price}</span>
-                  <span className="text-sm text-muted-foreground ml-2">/{service.duration}</span>
-                </div>
-                <ul className="space-y-2">
-                  {service.features.map((feature, fIndex) => (
-                    <li key={fIndex} className="flex items-center gap-2 text-sm">
-                      <div className="size-1.5 rounded-full bg-primary" />
-                      {feature}
-                    </li>
-                  ))}
+              <CardContent className="flex-1">
+                <div className="mb-6 flex items-end gap-2"><span className="font-heading text-3xl font-semibold text-primary">{service.price}</span><span className="pb-1 text-sm text-muted-foreground">/ {service.duration}</span></div>
+                <ul className="space-y-3">
+                  {service.features.map((feature) => <li key={feature} className="flex gap-2 text-sm text-muted-foreground"><CheckCircle2 className="mt-0.5 size-4 shrink-0 text-secondary" />{feature}</li>)}
                 </ul>
               </CardContent>
-              <CardFooter>
-                <Button className="w-full" variant={service.popular ? "default" : "outline"} asChild>
-                  <a
-                    href={`https://wa.me/51992684562?text=${encodeURIComponent(`Hola, deseo información sobre ${service.title}.`)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    Solicitar Información
-                  </a>
+              <CardFooter className="border-t border-border/70 bg-transparent">
+                <Button className={service.popular ? "button-gold w-full" : "w-full"} variant={service.popular ? "default" : "outline"} asChild>
+                  <a href={`https://wa.me/51992684562?text=${encodeURIComponent(`Hola, deseo información sobre ${service.title}.`)}`} target="_blank" rel="noopener noreferrer">Solicitar información</a>
                 </Button>
               </CardFooter>
             </Card>
@@ -201,57 +158,28 @@ function Services() {
 }
 
 function About() {
+  const features = [
+    [ShieldCheck, "Vehículos con Doble Comando", "Todos los vehículos disponen de doble mando para intervención inmediata del instructor."],
+    [MapPin, "Circuito Homologado", "Pista de manejo diseñada bajo los estándares y dimensiones del examen oficial."],
+    [Users, "Instructores Expertos", "Profesionales certificados con metodología comprobada y paciente."],
+    [Award, "Alta Tasa de Aprobación", "Preparación integral para llegar al examen con más seguridad."],
+  ]
+
   return (
-    <section id="nosotros" className="py-16 md:py-24 bg-muted/50">
-      <div className="container">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
-          <div>
-            <h2 className="text-3xl md:text-4xl font-bold mb-6">Sobre Nosotros</h2>
-            <div className="space-y-6">
-              <div>
-                <h3 className="text-xl font-semibold mb-2 text-primary">Misión</h3>
-                <p className="text-muted-foreground">
-                  Formar conductores competentes y responsables mediante práctica intensiva en circuito homologado bajo estándares oficiales, logrando que cada alumno domine el vehículo, supere los nervios y apruebe el examen de licencia en su primer intento.
-                </p>
-              </div>
-              <div>
-                <h3 className="text-xl font-semibold mb-2 text-primary">Visión</h3>
-                <p className="text-muted-foreground">
-                  Consolidarnos como la academia de manejo más recomendada de Ayacucho, siendo referente regional en seguridad vial, metodología pedagógica paciente y atención al cliente.
-                </p>
-              </div>
-            </div>
+    <section id="nosotros" className="landing-soft-section py-16 md:py-24">
+      <div className="container grid items-center gap-12 lg:grid-cols-[0.9fr_1.1fr]">
+        <div>
+          <p className="text-sm font-semibold tracking-[0.15em] text-secondary">SOBRE NOSOTROS</p>
+          <h2 className="landing-section-title mt-3 text-3xl font-semibold sm:text-4xl">Formamos conductores responsables para las rutas de Ayacucho.</h2>
+          <div className="mt-8 space-y-6">
+            <div className="border-l-2 border-secondary pl-5"><h3 className="font-heading text-lg font-semibold">Misión</h3><p className="mt-2 leading-7 text-muted-foreground">Formar conductores competentes y responsables mediante práctica intensiva en circuito homologado bajo estándares oficiales.</p></div>
+            <div className="border-l-2 border-accent pl-5"><h3 className="font-heading text-lg font-semibold">Visión</h3><p className="mt-2 leading-7 text-muted-foreground">Consolidarnos como la academia de manejo más recomendada de Ayacucho, siendo referente regional en seguridad vial y atención al cliente.</p></div>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Card className="p-6">
-              <Shield className="size-10 text-primary mb-4" />
-              <h3 className="font-semibold mb-2">Vehículos con Doble Comando</h3>
-              <p className="text-sm text-muted-foreground">
-                Todos los vehículos disponen de doble mando para intervención inmediata del instructor.
-              </p>
-            </Card>
-            <Card className="p-6">
-              <MapPin className="size-10 text-primary mb-4" />
-              <h3 className="font-semibold mb-2">Circuito Homologado</h3>
-              <p className="text-sm text-muted-foreground">
-                Pista de manejo diseñada bajo los estándares y dimensiones del examen oficial.
-              </p>
-            </Card>
-            <Card className="p-6">
-              <Users className="size-10 text-primary mb-4" />
-              <h3 className="font-semibold mb-2">Instructores Expertos</h3>
-              <p className="text-sm text-muted-foreground">
-                Profesionales certificados con metodología comprobada y paciente.
-              </p>
-            </Card>
-            <Card className="p-6">
-              <Award className="size-10 text-primary mb-4" />
-              <h3 className="font-semibold mb-2">Alta Tasa de Aprobación</h3>
-              <p className="text-sm text-muted-foreground">
-                Preparación integral que garantiza la aprobación en el primer intento.
-              </p>
-            </Card>
-          </div>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2">
+          {features.map(([Icon, title, description]) => (
+            <Card key={title as string} className="premium-card card-hover-effect py-0"><CardContent className="p-6"><div className="icon-circle icon-circle-accent mb-4"><Icon className="size-5" /></div><h3 className="font-heading font-semibold">{title as string}</h3><p className="mt-2 text-sm leading-6 text-muted-foreground">{description as string}</p></CardContent></Card>
+          ))}
         </div>
       </div>
     </section>
@@ -259,152 +187,34 @@ function About() {
 }
 
 function FAQs() {
-  const faqs = [
-    {
-      question: "¿Necesito experiencia previa para inscribirme?",
-      answer: "No. El Paquete San Cristóbal está diseñado para iniciar desde nivel cero. La metodología es progresiva y el instructor adapta el ritmo al nivel real del alumno.",
-    },
-    {
-      question: "¿Los vehículos cuentan con doble comando?",
-      answer: "Sí. Todos los vehículos de la flota disponen de doble mando, lo que garantiza la intervención inmediata del instructor ante cualquier situación de riesgo.",
-    },
-    {
-      question: "¿Cuánto cuesta la práctica en el circuito?",
-      answer: "La tarifa es de S/ 40.00 por hora, aplicable al Circuito Libre y al Simulacro Tipo Examen. El Paquete San Cristóbal tiene tarifa diferenciada; consultar al momento de la inscripción.",
-    },
-    {
-      question: "¿Cuál es el horario de atención?",
-      answer: "La academia atiende de lunes a viernes de 8:00 a.m. a 6:00 p.m. Las consultas fuera de ese horario serán respondidas el siguiente día hábil.",
-    },
-    {
-      question: "¿Qué pasa si no aprobo el examen oficial?",
-      answer: "Los alumnos del Paquete San Cristóbal tienen derecho a sesiones de refuerzo y un nuevo simulacro sin costo adicional hasta lograr la aprobación.",
-    },
-    {
-      question: "¿Puedo alquilar el circuito sin inscribirme en un paquete?",
-      answer: "Sí, mediante el servicio Circuito Libre a S/ 40.00 por hora. Se requiere reserva previa con mínimo de 1 hora dentro del horario de atención.",
-    },
-    {
-      question: "¿La academia ayuda con los trámites de la licencia?",
-      answer: "Sí. El servicio de Asesoría en Trámites guía al alumno paso a paso en la programación de su cita y el cumplimiento de los requisitos documentarios ante la autoridad competente.",
-    },
-    {
-      question: "¿Cómo llego a la academia?",
-      answer: "Dirección: Jr. Los Morochucos N° 349, Ayacucho, a unas cuadras del Arco Magisterial. Puedes llegar tomando la Ruta 7 o la Ruta 12 del transporte público.",
-    },
-  ]
-
   return (
     <section id="preguntas" className="py-16 md:py-24">
-      <div className="container">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Preguntas Frecuentes</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Encuentra respuestas a las preguntas más comunes sobre nuestros servicios.
-          </p>
-        </div>
-
-        <div className="max-w-3xl mx-auto">
-          <Accordion type="single" collapsible className="w-full">
-            {faqs.map((faq, index) => (
-              <AccordionItem key={index} value={`item-${index}`}>
-                <AccordionTrigger className="text-left">{faq.question}</AccordionTrigger>
-                <AccordionContent className="text-muted-foreground">
-                  {faq.answer}
-                </AccordionContent>
-              </AccordionItem>
-            ))}
-          </Accordion>
-        </div>
+      <div className="container max-w-4xl">
+        <div className="mx-auto mb-12 max-w-2xl text-center"><p className="text-sm font-semibold tracking-[0.15em] text-secondary">TE ACOMPAÑAMOS</p><h2 className="landing-section-title mt-3 text-3xl font-semibold sm:text-4xl">Preguntas frecuentes</h2><p className="mt-4 text-muted-foreground">Respuestas claras para que puedas empezar con tranquilidad.</p></div>
+        <Accordion type="single" collapsible className="premium-card overflow-hidden rounded-2xl px-6">
+          {faqs.map(([question, answer], index) => <AccordionItem key={question} value={`item-${index}`} className="border-border/70"><AccordionTrigger className="text-left font-heading text-base font-semibold hover:no-underline">{question}</AccordionTrigger><AccordionContent className="max-w-3xl pb-5 leading-7 text-muted-foreground">{answer}</AccordionContent></AccordionItem>)}
+        </Accordion>
       </div>
     </section>
   )
 }
 
 function Contact() {
+  const details = [
+    [MapPin, "Ubicación", "Jr. Los Morochucos N° 349, Ayacucho", "A unas cuadras del Arco Magisterial"],
+    [Clock, "Horario de Atención", "Lunes a Viernes: 8:00 a.m. – 6:00 p.m.", "Sábados: Cerrado · Domingos: Cerrado"],
+    [HelpCircle, "Transporte Público", "Ruta 7 (deja a pasos del circuito)", "Ruta 12 (acceso directo)"],
+  ]
+
   return (
-    <section id="contacto" className="py-16 md:py-24 bg-muted/50">
+    <section id="contacto" className="landing-soft-section py-16 md:py-24">
       <div className="container">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">Contáctanos</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            ¿Tienes preguntas? ¿Quieres agendar una clase? Escríbenos y nos pondremos en contacto contigo.
-          </p>
-        </div>
-
-        <div className="grid lg:grid-cols-2 gap-12 max-w-5xl mx-auto">
-          <Card>
-            <CardHeader>
-              <CardTitle>Envíanos un mensaje</CardTitle>
-              <CardDescription>
-                Completa el formulario y te responderemos lo antes posible.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ContactForm />
-            </CardContent>
-          </Card>
-
-          <div className="flex flex-col gap-6">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <MapPin className="size-6 text-primary mt-1" />
-                  <div>
-                    <h3 className="font-semibold mb-1">Ubicación</h3>
-                    <p className="text-muted-foreground">Jr. Los Morochucos N° 349, Ayacucho</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      A unas cuadras del Arco Magisterial
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <Clock className="size-6 text-primary mt-1" />
-                  <div>
-                    <h3 className="font-semibold mb-1">Horario de Atención</h3>
-                    <p className="text-muted-foreground">Lunes a Viernes: 8:00 a.m. – 6:00 p.m.</p>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      Sábados: Cerrado · Domingos: Cerrado
-                    </p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <HelpCircle className="size-6 text-primary mt-1" />
-                  <div>
-                    <h3 className="font-semibold mb-1">Transporte Público</h3>
-                    <p className="text-muted-foreground">Ruta 7 (deja a pasos del circuito)</p>
-                    <p className="text-muted-foreground">Ruta 12 (acceso directo)</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4">
-                  <Phone className="size-6 text-primary mt-1" />
-                  <div>
-                    <h3 className="font-semibold mb-1">WhatsApp</h3>
-                    <p className="text-muted-foreground">Canal principal de reservas y consultas</p>
-                    <Button className="mt-2 bg-green-700 hover:bg-green-800" asChild>
-                      <a href="https://wa.me/51992684562" target="_blank" rel="noopener noreferrer">
-                        Escribir por WhatsApp
-                      </a>
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+        <div className="mx-auto mb-12 max-w-2xl text-center"><p className="text-sm font-semibold tracking-[0.15em] text-secondary">CONTÁCTANOS</p><h2 className="landing-section-title mt-3 text-3xl font-semibold sm:text-4xl">Empecemos tu camino hoy.</h2><p className="mt-4 text-muted-foreground">Cuéntanos qué necesitas y te ayudaremos a encontrar la práctica adecuada.</p></div>
+        <div className="mx-auto grid max-w-5xl gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+          <Card className="premium-card"><CardHeader><CardTitle className="text-xl font-semibold">Envíanos un mensaje</CardTitle><CardDescription>Completa el formulario y te responderemos lo antes posible.</CardDescription></CardHeader><CardContent><ContactForm /></CardContent></Card>
+          <div className="space-y-4">
+            {details.map(([Icon, title, lineOne, lineTwo]) => <Card key={title as string} className="premium-card py-0"><CardContent className="flex gap-4 p-5"><div className="icon-circle icon-circle-accent shrink-0"><Icon className="size-5" /></div><div><h3 className="font-heading font-semibold">{title as string}</h3><p className="mt-1 text-sm text-muted-foreground">{lineOne as string}</p><p className="mt-1 text-sm text-muted-foreground">{lineTwo as string}</p></div></CardContent></Card>)}
+            <Card className="border border-emerald-700/20 bg-emerald-700 text-white shadow-lg"><CardContent className="flex items-start gap-4 p-5"><Phone className="mt-1 size-5" /><div><h3 className="font-heading font-semibold">WhatsApp</h3><p className="mt-1 text-sm text-emerald-50">Canal principal de reservas y consultas.</p><Button className="mt-4 border border-white/20 bg-white text-emerald-800 hover:bg-emerald-50" asChild><a href="https://wa.me/51992684562" target="_blank" rel="noopener noreferrer">Escribir por WhatsApp</a></Button></div></CardContent></Card>
           </div>
         </div>
       </div>
@@ -413,14 +223,5 @@ function Contact() {
 }
 
 export default function Home() {
-  return (
-    <>
-      <Hero />
-      <Values />
-      <Services />
-      <About />
-      <FAQs />
-      <Contact />
-    </>
-  )
+  return <><Hero /><Values /><Services /><About /><FAQs /><Contact /></>
 }

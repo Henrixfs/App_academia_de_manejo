@@ -139,13 +139,13 @@ export const AdminServiciosClient = ({ initialServicios }: AdminServiciosClientP
   }
 
   return (
-    <>
-      <div className="mb-8 flex items-center justify-between animate-slide-up">
+    <div className="container admin-page">
+      <div className="admin-page-heading mb-8 flex items-center justify-between animate-slide-up">
         <div>
           <h1 className="text-3xl font-bold tracking-tight mb-1">Servicios</h1>
           <p className="text-muted-foreground">Configura los servicios ofrecidos</p>
         </div>
-        <Button onClick={() => handleOpenModal()} className="gap-2 shadow-sm">
+        <Button onClick={() => handleOpenModal()} className="button-gold gap-2 shadow-sm">
           <Plus className="size-4" />
           Nuevo Servicio
         </Button>
@@ -309,6 +309,6 @@ export const AdminServiciosClient = ({ initialServicios }: AdminServiciosClientP
         onCancel={() => setDeleteTarget(null)}
         onConfirm={confirmDelete}
       />
-    </>
+    </div>
   )
 }

@@ -45,8 +45,8 @@ const AdminPage = async (): Promise<React.ReactNode> => {
   ).slice(0, 5)
 
   return (
-    <div className="container py-8 space-y-8">
-      <div className="mb-8 animate-slide-up">
+    <div className="container admin-page space-y-8">
+      <div className="admin-page-heading mb-8 animate-slide-up">
         <h1 className="text-3xl font-bold tracking-tight mb-1">Panel de Administración</h1>
         <p className="text-muted-foreground">Resumen de la actividad de la academia</p>
       </div>

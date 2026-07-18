@@ -12,34 +12,34 @@ export function Navbar() {
   const [isOpen, setIsOpen] = React.useState(false)
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-      <nav className="container flex h-16 items-center justify-between">
-        <Link href="/" className="flex items-center gap-2 font-semibold">
+    <header className="site-header sticky top-0 z-50 w-full border-b backdrop-blur-xl">
+      <nav className="container flex h-[4.5rem] items-center justify-between">
+        <Link href="/" className="brand-lockup flex items-center gap-3 font-semibold">
           <Image
             src="/logo.png"
             alt="Logo Academia de Manejo San Cristóbal VIP"
-            width={32}
-            height={32}
-            className="size-8"
+            width={40}
+            height={40}
+            className="brand-crest size-10 rounded-xl object-contain"
             priority
           />
-          <span>Academia de Manejo San Cristóbal VIP</span>
+          <span className="max-w-48 text-sm leading-tight sm:max-w-none sm:text-base">Academia de Manejo San Cristóbal VIP</span>
         </Link>
 
         <div className="hidden md:flex md:items-center md:gap-6">
-          <Link href="#servicios" className="text-sm font-medium hover:text-primary">
+          <Link href="#servicios" className="site-nav-link text-sm font-medium">
             Servicios
           </Link>
-          <Link href="#nosotros" className="text-sm font-medium hover:text-primary">
+          <Link href="#nosotros" className="site-nav-link text-sm font-medium">
             Nosotros
           </Link>
-          <Link href="#preguntas" className="text-sm font-medium hover:text-primary">
+          <Link href="#preguntas" className="site-nav-link text-sm font-medium">
             Preguntas
           </Link>
-          <Link href="#contacto" className="text-sm font-medium hover:text-primary">
+          <Link href="#contacto" className="site-nav-link text-sm font-medium">
             Contacto
           </Link>
-          <Button asChild size="sm">
+          <Button asChild size="sm" className="rounded-full px-4">
             <Link href="/login">Iniciar sesión</Link>
           </Button>
           <ThemeToggle />
@@ -65,33 +65,33 @@ export function Navbar() {
           <div className="container py-4 flex flex-col gap-4">
             <Link
               href="#servicios"
-              className="text-sm font-medium hover:text-primary"
+            className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted"
               onClick={() => setIsOpen(false)}
             >
               Servicios
             </Link>
             <Link
               href="#nosotros"
-              className="text-sm font-medium hover:text-primary"
+            className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted"
               onClick={() => setIsOpen(false)}
             >
               Nosotros
             </Link>
             <Link
               href="#preguntas"
-              className="text-sm font-medium hover:text-primary"
+            className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted"
               onClick={() => setIsOpen(false)}
             >
               Preguntas
             </Link>
             <Link
               href="#contacto"
-              className="text-sm font-medium hover:text-primary"
+            className="rounded-lg px-3 py-2 text-sm font-medium hover:bg-muted"
               onClick={() => setIsOpen(false)}
             >
               Contacto
             </Link>
-            <Button asChild size="sm">
+            <Button asChild size="sm" className="rounded-full">
               <Link href="/login" onClick={() => setIsOpen(false)}>
                 Iniciar sesión
               </Link>

@@ -15,18 +15,19 @@ from app.database import Base, get_db
 from app.dependencies import get_current_admin
 from app.main import app
 
-
+# Configuración específica para SQLite en memoria
 engine_options: dict[str, object] = {}
 if TEST_DATABASE_URL.startswith("sqlite"):
     engine_options = {
-        "connect_args": {"check_same_thread": False},
-        "poolclass": StaticPool,
+        "connect_args": {"check_same_thread": False},  # Necesario para SQLite concurrente
+        "poolclass": StaticPool,  # Pool simple para pruebas
     }
 
 engine = create_engine(TEST_DATABASE_URL, **engine_options)
 TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 
+# Dependency override para obtener una sesión de base de datos de prueba
 def override_get_db():
     db = TestingSessionLocal()
     try:
@@ -35,6 +36,7 @@ def override_get_db():
         db.close()
 
 
+# Dependency override para obtener un admin de prueba
 async def override_current_admin():
     return {
         "id": uuid.UUID("00000000-0000-0000-0000-000000000001"),

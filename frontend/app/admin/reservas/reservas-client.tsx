@@ -264,13 +264,13 @@ export const AdminReservasClient = ({ initialReservas, alumnos, servicios }: Adm
   // ─── Render ──────────────────────────────────────────────────────────────────
 
   return (
-    <div className="container py-8">
-      <div className="mb-8 flex items-center justify-between animate-slide-up">
+    <div className="container admin-page">
+      <div className="admin-page-heading mb-8 flex items-center justify-between animate-slide-up">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Gestión de Reservas</h1>
           <p className="text-muted-foreground">Administre las citas, clases y simulacros programados.</p>
         </div>
-        <Button onClick={handleOpenCreateModal} className="gap-2">
+        <Button onClick={handleOpenCreateModal} className="button-gold gap-2">
           <Plus className="size-4" />
           Nueva Reserva
         </Button>
