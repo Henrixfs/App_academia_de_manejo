@@ -2,7 +2,8 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { Car, Menu, X } from "lucide-react"
+import Image from "next/image"
+import { Menu, X } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import { ThemeToggle } from "@/components/providers/theme-toogle"
@@ -14,7 +15,14 @@ export function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
       <nav className="container flex h-16 items-center justify-between">
         <Link href="/" className="flex items-center gap-2 font-semibold">
-          <Car className="size-6" />
+          <Image
+            src="/logo.png"
+            alt="Logo Academia de Manejo San Cristóbal VIP"
+            width={32}
+            height={32}
+            className="size-8"
+            priority
+          />
           <span>Academia de Manejo San Cristóbal VIP</span>
         </Link>
 

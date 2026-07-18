@@ -14,6 +14,9 @@ describe('Navbar', () => {
     const user = userEvent.setup()
     render(<Navbar />)
 
+    const brandLogo = screen.getByRole('img', { name: 'Logo Academia de Manejo San Cristóbal VIP' })
+    expect(brandLogo.getAttribute('src')).toContain('%2Flogo.png')
+
     expect(screen.getAllByRole('link', { name: 'Servicios' })).toHaveLength(1)
     expect(screen.getAllByRole('link', { name: 'Nosotros' })).toHaveLength(1)
     expect(screen.getAllByRole('link', { name: 'Preguntas' })).toHaveLength(1)
